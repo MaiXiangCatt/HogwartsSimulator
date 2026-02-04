@@ -1,0 +1,17 @@
+# Node
+node_modules/
+dist/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# Go
+/backend/bin/
+*.exe
+
+# OS
+.DS_Store
