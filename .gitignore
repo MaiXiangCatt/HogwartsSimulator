@@ -1,17 +1,41 @@
-# Node
+# --- OS & IDE ---
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Node (Frontend) ---
 node_modules/
 dist/
-.env
+dist-ssr/
+*.local
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Python
+# --- Python (AI Service) ---
 __pycache__/
 *.py[cod]
+*$py.class
 venv/
 .env
+.pytest_cache/
 
-# Go
+# --- Go (Backend) ---
 /backend/bin/
 *.exe
+*.test
+# Go 的依赖通常不在当前目录的 node_modules 里，但如果有编译产物可以加在这里
 
-# OS
-.DS_Store
+# --- Environment Secrets ---
+.env
+.env.*.local
