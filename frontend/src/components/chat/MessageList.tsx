@@ -1,25 +1,25 @@
-import { useEffect, useRef } from "react";
-import ChatMessage from "@/components/chat/ChatMessage";
-import type { ChatMessageType } from "@/types/chat";
+import { useEffect, useRef } from 'react'
+import ChatMessage from '@/components/chat/ChatMessage'
+import type { ChatMessageType } from '@/types/chat'
 
 interface MessageListProps {
-  messages: ChatMessageType[];
+  messages: ChatMessageType[]
 }
 
 export function MessageList({ messages }: MessageListProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [messages]);
+  }, [messages])
 
   return (
     <div
       ref={scrollRef}
-      className="w-1/2 overflow-y-auto p-4 space-y-4 flex flex-col"
+      className="flex w-1/2 flex-col space-y-4 overflow-y-auto p-4"
     >
       {messages.map((msg, index) => (
         <ChatMessage
@@ -28,6 +28,6 @@ export function MessageList({ messages }: MessageListProps) {
         />
       ))}
     </div>
-  );
+  )
 }
-export default MessageList;
+export default MessageList

@@ -1,28 +1,28 @@
-import { cn } from "@/lib/utils";
-import Markdown from "react-markdown";
-import type { ChatMessageType } from "@/types/chat";
+import { cn } from '@/lib/utils'
+import Markdown from 'react-markdown'
+import type { ChatMessageType } from '@/types/chat'
 
 export interface ChatMessageProps {
-  message: ChatMessageType;
+  message: ChatMessageType
 }
 
 function ChatMessage({ message }: ChatMessageProps) {
-  const { role, content } = message;
-  const isUser = role === "user";
+  const { role, content } = message
+  const isUser = role === 'user'
 
   return (
     <div
       className={cn(
-        "max-w-[80%] p-3 rounded-lg text-sm markdown-body",
+        'markdown-body max-w-[80%] rounded-lg p-3 text-sm',
         // Flex alignment: self-end for user (right), self-start for AI (left)
         isUser
-          ? "self-end bg-primary text-primary-foreground"
-          : "self-start bg-muted text-foreground",
+          ? 'bg-primary text-primary-foreground self-end'
+          : 'bg-muted text-foreground self-start'
       )}
     >
       <Markdown>{content}</Markdown>
     </div>
-  );
+  )
 }
 
-export default ChatMessage;
+export default ChatMessage
