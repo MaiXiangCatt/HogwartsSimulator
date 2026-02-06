@@ -4,11 +4,14 @@ import (
 	"time"
 
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/api/controller"
+	"github.com/MaiXiangCatt/HogwartsSimulator/backend/api/middleware"
+	"github.com/MaiXiangCatt/HogwartsSimulator/backend/database"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	database.Init()
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:5173"},
@@ -17,6 +20,13 @@ func main() {
 		AllowCredentials: true,
 		MaxAge: 12 * time.Hour,
 	}))
-	r.GET("/api/game/chat", controller.ChatHandler)
+	r.POST("/api/register", controller.Register)
+	r.POST("/api/login", controller.Login)
+	authGroup := r.Group("/api")
+	authGroup.Use(middleware.JWTAUth())
+	{
+		authGroup.POST("/chat", controller.ChatHandler)
+		authGroup.POST("/character", controller.CreateCharacter)
+	}
 	r.Run(":8080")
 }
