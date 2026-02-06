@@ -26,8 +26,10 @@ func main() {
 	authGroup.Use(middleware.JWTAUth())
 	{
 		authGroup.POST("/chat", controller.ChatHandler)
-		authGroup.POST("/character", controller.CreateCharacter)
 		authGroup.GET("/auth/user", controller.GetUserInfo)
+		authGroup.POST("/character", controller.CreateCharacter)
+		authGroup.GET("/character", controller.GetCharacterList)
+		authGroup.DELETE("/character/:id", controller.DeleteCharacter)
 	}
 	r.Run(":8080")
 }
