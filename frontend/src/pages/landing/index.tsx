@@ -2,10 +2,26 @@ import { useNavigate } from 'react-router'
 import { Scroll, Dices, BookOpen } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUserStore } from '@/store/user'
+import dayjs from 'dayjs'
 
 const LandingPage = () => {
   const navigate = useNavigate()
-  const { isAuthenticated, openAuthModal } = useUserStore()
+  const { isAuthenticated, openAuthModal, user } = useUserStore()
+
+  const currentHour = dayjs().hour()
+  const getGreeting = () => {
+    if (currentHour >= 5 && currentHour < 11) {
+      return '早上好'
+    } else if (currentHour >= 11 && currentHour < 14) {
+      return '中午好'
+    } else if (currentHour >= 14 && currentHour < 18) {
+      return '下午好'
+    } else if (currentHour >= 18 && currentHour < 23) {
+      return '晚上好'
+    } else {
+      return '夜深了'
+    }
+  }
 
   const handleStart = () => {
     if (isAuthenticated) {
@@ -26,6 +42,11 @@ const LandingPage = () => {
           <p className="font-serif text-xl italic opacity-80 md:text-2xl">
             "猫头鹰已启程，你的传奇即将开始。"
           </p>
+          {isAuthenticated && (
+            <p>
+              {getGreeting()}，{user?.username}，欢迎回家~
+            </p>
+          )}
           <div className="pt-8">
             <button
               onClick={handleStart}
