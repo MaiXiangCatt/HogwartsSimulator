@@ -7,7 +7,7 @@ export interface ChatInputProps {
   onSend: (message: string) => void
   isDisabled?: boolean
 }
-function ChatInput({ onSend, isDisabled }: ChatInputProps) {
+const ChatInput = ({ onSend, isDisabled }: ChatInputProps) => {
   const [input, setInput] = useState('')
 
   const handleSend = () => {

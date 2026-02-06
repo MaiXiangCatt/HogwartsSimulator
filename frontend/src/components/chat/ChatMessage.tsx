@@ -6,7 +6,7 @@ export interface ChatMessageProps {
   message: ChatMessageType
 }
 
-function ChatMessage({ message }: ChatMessageProps) {
+const ChatMessage = ({ message }: ChatMessageProps) => {
   const { role, content } = message
   const isUser = role === 'user'
 

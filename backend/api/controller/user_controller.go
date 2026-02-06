@@ -54,6 +54,30 @@ func Login(c *gin.Context) {
 		"data": gin.H{
 			"token": token,
 			"user_id": user.ID,
+			"username": user.Username,
+			"email": user.Email,
+		},
+	})
+}
+
+func GetUserInfo(c *gin.Context) {
+	userID, exist := c.Get("userID")
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "您还未登录"})
+		return
+	}
+	user, err := userService.GetUserProfile(userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"message": "获取用户信息成功",
+		"data": gin.H{
+			"user_id": user.ID,
+			"username": user.Username,
+			"email": user.Email,
 		},
 	})
 }

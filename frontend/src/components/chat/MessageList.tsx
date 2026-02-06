@@ -6,7 +6,7 @@ interface MessageListProps {
   messages: ChatMessageType[]
 }
 
-export function MessageList({ messages }: MessageListProps) {
+const MessageList = ({ messages }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom when messages change

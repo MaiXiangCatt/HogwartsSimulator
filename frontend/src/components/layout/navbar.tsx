@@ -1,0 +1,64 @@
+import { Link } from 'react-router'
+import { useUserStore } from '@/store/user'
+import { LogOut, User as UserIcon } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
+const Navbar = () => {
+  const { isAuthenticated, user, openAuthModal, logout } = useUserStore()
+
+  return (
+    <nav className="fixed top-0 right-0 left-0 z-40 flex items-center justify-between px-6 py-4 backdrop-blur-[2px] transition-all">
+      <Link
+        to="/"
+        className="font-serif text-xl font-bold tracking-tight text-[#2A1B0A] hover:opacity-80"
+      >
+        霍格沃茨沉浸式模拟器
+      </Link>
+
+      <div className="flex items-center gap-4">
+        {isAuthenticated ? (
+          <>
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="flex items-center gap-2 text-sm font-semibold text-[#2A1B0A]">
+                  <UserIcon size={16} />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span>{user?.username}</span>
+              </TooltipContent>
+            </Tooltip>
+            <button
+              onClick={logout}
+              className="flex items-center gap-1 text-sm font-semibold text-[#2A1B0A] decoration-2 underline-offset-4 hover:underline"
+            >
+              <LogOut size={16} />
+              <span>退出</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => openAuthModal('login')}
+              className="text-sm font-semibold text-[#2A1B0A] decoration-2 underline-offset-4 hover:underline"
+            >
+              登录
+            </button>
+            <button
+              onClick={() => openAuthModal('register')}
+              className="text-sm font-semibold text-[#2A1B0A] decoration-2 underline-offset-4 hover:underline"
+            >
+              注册
+            </button>
+          </>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+export default Navbar

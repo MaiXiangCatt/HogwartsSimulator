@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
-	"github.com/gin-gonic/gin"
+
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/internal/utils"
+	"github.com/gin-gonic/gin"
 )
 
 func JWTAUth() gin.HandlerFunc {
@@ -16,6 +18,7 @@ func JWTAUth() gin.HandlerFunc {
 			return
 		}
 		parts := strings.Split(authHeader, " ")
+		fmt.Println(parts)
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token格式错误"})
 			c.Abort()
@@ -27,7 +30,7 @@ func JWTAUth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set("user_id", claims.UserID)
+		c.Set("userID", claims.UserID)
 		c.Next()
 	}
 }

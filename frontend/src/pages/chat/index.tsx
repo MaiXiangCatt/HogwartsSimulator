@@ -1,6 +1,6 @@
 import ChatArea from '@/components/chat/ChatArea'
 
-function Layout() {
+const ChatPage = () => {
   return (
     <div className="flex h-screen w-full">
       <div className="w-1/5 bg-gray-200">我是sidebar占位</div>
@@ -11,4 +11,4 @@ function Layout() {
     </div>
   )
 }
-export default Layout
+export default ChatPage

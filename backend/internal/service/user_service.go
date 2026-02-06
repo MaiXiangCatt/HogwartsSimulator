@@ -1,6 +1,8 @@
 package service
+
 import (
 	"errors"
+
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/database"
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/internal/model"
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/internal/utils"
@@ -43,4 +45,12 @@ func(s *UserService) Login(username, password string) (string, *model.User, erro
 		return "", nil, err
 	}
 	return token, &user, nil
+}
+
+func (s *UserService) GetUserProfile(userID uint) (*model.User, error) {
+	var user model.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

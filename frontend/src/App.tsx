@@ -1,10 +1,25 @@
-import Layout from '@/pages/layout'
+import { useEffect } from 'react'
+import { router } from './router'
+import { RouterProvider } from 'react-router'
+import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from './components/ui/tooltip'
+import { useUserStore } from './store/user'
 
-function App() {
+const App = () => {
+  const { checkAuth } = useUserStore()
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
   return (
-    <div>
-      <Layout />
-    </div>
+    <>
+      <TooltipProvider>
+        <RouterProvider router={router} />
+        <Toaster
+          position="top-right"
+          richColors
+        />
+      </TooltipProvider>
+    </>
   )
 }
 

@@ -20,13 +20,14 @@ func main() {
 		AllowCredentials: true,
 		MaxAge: 12 * time.Hour,
 	}))
-	r.POST("/api/register", controller.Register)
-	r.POST("/api/login", controller.Login)
+	r.POST("/api/auth/register", controller.Register)
+	r.POST("/api/auth/login", controller.Login)
 	authGroup := r.Group("/api")
 	authGroup.Use(middleware.JWTAUth())
 	{
 		authGroup.POST("/chat", controller.ChatHandler)
 		authGroup.POST("/character", controller.CreateCharacter)
+		authGroup.GET("/auth/user", controller.GetUserInfo)
 	}
 	r.Run(":8080")
 }

@@ -7,7 +7,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import prettierConfig from 'eslint-config-prettier'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'src/components/ui/**/*']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -19,6 +19,9 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
   prettierConfig,
