@@ -15,7 +15,7 @@ const App = () => {
       <TooltipProvider>
         <RouterProvider router={router} />
         <Toaster
-          position="top-right"
+          position="top-center"
           richColors
         />
       </TooltipProvider>
