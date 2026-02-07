@@ -1,23 +1,60 @@
 import time
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
+from openai import OpenAI
 
 app = FastAPI()
 
-def fake_stream_generator(user_input: str):
-    response_text = f"霍格沃茨收到你的消息：{user_input}。猫头鹰正在起飞..."
-    for char in response_text:
-        yield char  # 每次吐一个字符
-        time.sleep(0.1)  # 假装在思考/打字
+MODEL_URL_MAP = {
+    "deepseek-reasoner": "https://api.deepseek.com/v1",
+    "deepseek-chat": "https://api.deepseek.com",
+}
+
+def llm_stream_generator(client: OpenAI, model: str, messages: list):
+    try:
+        response = client.chat.completions.create(
+            model = model,
+            messages = messages,
+            stream = True
+        )
+        for chunk in response:
+            # 1. 处理推理内容
+            if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
+                reasoning = chunk.choices[0].delta.reasoning_content
+                yield f"[THOUGHT]{reasoning}"
+
+            # 2. 处理正式回复内容
+            content = chunk.choices[0].delta.content
+            if content:
+                yield content
+    except Exception as e:
+        yield f"\n[System Error]: 调用模型失败 - {str(e)}"
 
 @app.post("/chat")
-def chat_endpoint(payload: dict):
-    # payload 预期格式: {"message": "Hello"}
-    user_message = payload.get("message", "")
+async def chat_endpoint(request: Request):
+    payload = await request.json()
+    messages = payload.get("messages", [])
+    api_key = payload.get("api_key")
+    model = payload.get("model")
+
+    if not api_key:
+        return StreamingResponse(
+            iter(["[Error] API Key is missing"]), 
+            media_type="text/event-stream"
+        )
+
+    base_url = MODEL_URL_MAP.get(model)
+
+    client = OpenAI(
+        api_key = api_key,
+        base_url = base_url
+    )
     
     # 返回流式响应，media_type="text/plain" 表示返回纯文本
-    return StreamingResponse(fake_stream_generator(user_message), media_type="text/event-stream")
+    return StreamingResponse(
+        llm_stream_generator(client, model, messages), 
+        media_type="text/event-stream")
 
 if __name__ == "__main__":
     # 启动服务，监听 8000 端口
