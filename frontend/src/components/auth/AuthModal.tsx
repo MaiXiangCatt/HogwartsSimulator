@@ -296,6 +296,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         <div className="p-8">
+          <div className="mb-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900 border border-amber-200">
+            💡 提示：本游戏支持离线游玩！您不需要注册即可体验完整内容。注册/登录仅用于开启【云存档】功能。
+          </div>
           {activeTab === 'login' ? (
             <LoginForm
               onSwitch={() => setActiveTab('register')}

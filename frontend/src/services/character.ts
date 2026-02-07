@@ -1,18 +1,79 @@
-import request from '@/lib/request'
+// import request from '@/lib/request'
 import type {
-  CharacterListResponse,
+  // CharacterListResponse,
   CraeteCharacterParams,
-  CreateCharacterResponse,
+  // CreateCharacterResponse,
+  Character,
 } from '@/types/character'
+import { db } from '@/lib/db'
 
-export const getCharacterList = () => {
-  return request.get<CharacterListResponse>('/character')
+// TODO: Cloud Sync
+// export const getCharacterList = () => {
+//   return request.get<CharacterListResponse>('/character')
+// }
+
+export const getCharacterList = async () => {
+  return await db.characters.orderBy('updated_at').reverse().toArray()
 }
 
-export const createCharacter = (params: CraeteCharacterParams) => {
-  return request.post<CreateCharacterResponse>('/character', params)
+// TODO: Cloud Sync
+// export const createCharacter = (params: CraeteCharacterParams) => {
+//   return request.post<CreateCharacterResponse>('/character', params)
+// }
+
+export const createCharacter = async (data: CraeteCharacterParams) => {
+
+  const newChar: Character = {
+    name: data.name,
+    gender: data.gender,
+    house: '',
+    blood_status: data.blood_status,
+    wand: data.wand,
+    patronus: data.patronus,
+    
+    // 初始化默认值
+    status: {
+      hp: 100,
+      mp: 100,
+      max_mp: 100,
+      gold: 0,
+      ap: 7,
+      max_ap: 7,
+      knowledge: 15,
+      athletics: 30,
+      charm: 50,
+      morality: 50,
+      mental: 50,
+      current_year: 1991,
+      current_month: 8,
+      current_week: 2,
+      current_weekday: 1,
+      location: 'Hogwarts',
+      game_mode: 'weekly',
+    },
+    inventory: [],
+    spells: {},
+    relationships: {},
+    world_log: [],
+    summary: '',
+    updated_at: Date.now(),
+  }
+  console.log('newChar', newChar)
+  return await db.characters.add(newChar)
 }
 
-export const deleteCharacter = (id: number) => {
-  return request.delete<void>(`/character/${id}`)
+export const getCharacter = async (id: number) => {
+  return await db.characters.get(id)
+}
+
+// TODO: Cloud Sync
+// export const deleteCharacter = (id: number) => {
+//   return request.delete<void>(`/character/${id}`)
+// }
+
+export const deleteCharacter = async (id: number) => {
+  await db.transaction('rw', db.characters, db.logs, async () => {
+    await db.characters.delete(id)
+    await db.logs.where({ character_id: id }).delete()
+  })
 }

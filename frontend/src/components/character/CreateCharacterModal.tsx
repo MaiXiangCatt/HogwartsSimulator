@@ -207,22 +207,24 @@ const CreateCharacterModal = ({
               )}
             />
 
-            <DialogFooter className="mt-6 gap-2 sm:gap-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="border-[#2A1B0A] text-[#2A1B0A] hover:bg-[#F0E6D8]"
-              >
-                取消
-              </Button>
-              <Button
-                type="submit"
-                disabled={form.formState.isSubmitting}
-                className="bg-[#2A1B0A] text-white hover:bg-[#3D2810]"
-              >
-                创建
-              </Button>
+            <DialogFooter className="mt-6 sm:gap-0">
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  className="border-[#2A1B0A] text-[#2A1B0A] hover:bg-[#F0E6D8]"
+                >
+                  取消
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="bg-[#2A1B0A] text-white hover:bg-[#3D2810]"
+                >
+                  创建
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>

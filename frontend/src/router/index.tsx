@@ -3,7 +3,6 @@ import ChatPage from '@/pages/chat'
 import LandingPage from '@/pages/landing'
 import CharacterPage from '@/pages/character'
 import RootLayout from '@/components/layout'
-import AuthRoute from '@/components/layout/authRoute'
 
 export const router = createBrowserRouter([
   {
@@ -15,19 +14,11 @@ export const router = createBrowserRouter([
       },
       {
         path: '/character',
-        element: (
-          <AuthRoute>
-            <CharacterPage />
-          </AuthRoute>
-        ),
+        element: <CharacterPage />,
       },
       {
         path: '/chat',
-        element: (
-          <AuthRoute>
-            <ChatPage />
-          </AuthRoute>
-        ),
+        element: <ChatPage />,
       },
     ],
   },

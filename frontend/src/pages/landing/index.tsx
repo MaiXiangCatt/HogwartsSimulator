@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 
 const LandingPage = () => {
   const navigate = useNavigate()
-  const { isAuthenticated, openAuthModal, user } = useUserStore()
+  const { isAuthenticated, user } = useUserStore()
 
   const currentHour = dayjs().hour()
   const getGreeting = () => {
@@ -24,11 +24,7 @@ const LandingPage = () => {
   }
 
   const handleStart = () => {
-    if (isAuthenticated) {
-      navigate('/character')
-    } else {
-      openAuthModal('login')
-    }
+    navigate('/character')
   }
 
   return (

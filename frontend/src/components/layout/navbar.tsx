@@ -1,14 +1,17 @@
 import { Link } from 'react-router'
 import { useUserStore } from '@/store/user'
-import { LogOut, User as UserIcon } from 'lucide-react'
+import { LogOut, User as UserIcon, Settings, Cloud } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useState } from 'react'
+import SettingsDialog from './SettingsDialog'
 
 const Navbar = () => {
   const { isAuthenticated, user, openAuthModal, logout } = useUserStore()
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   return (
     <nav className="fixed top-0 right-0 left-0 z-40 flex items-center justify-between px-6 py-4 backdrop-blur-[2px] transition-all">
@@ -20,6 +23,14 @@ const Navbar = () => {
       </Link>
 
       <div className="flex items-center gap-4">
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center gap-1 text-sm font-semibold text-[#2A1B0A] decoration-2 underline-offset-4 hover:underline"
+        >
+          <Settings size={16} />
+          <span>设置</span>
+        </button>
+
         {isAuthenticated ? (
           <>
             <Tooltip>
@@ -41,22 +52,17 @@ const Navbar = () => {
             </button>
           </>
         ) : (
-          <>
-            <button
-              onClick={() => openAuthModal('login')}
-              className="text-sm font-semibold text-[#2A1B0A] decoration-2 underline-offset-4 hover:underline"
-            >
-              登录
-            </button>
-            <button
-              onClick={() => openAuthModal('register')}
-              className="text-sm font-semibold text-[#2A1B0A] decoration-2 underline-offset-4 hover:underline"
-            >
-              注册
-            </button>
-          </>
+          <button
+            onClick={() => openAuthModal('login')}
+            className="flex items-center gap-1 text-sm font-semibold text-[#2A1B0A] decoration-2 underline-offset-4 hover:underline"
+          >
+            <Cloud size={16} />
+            <span>云端同步</span>
+          </button>
         )}
       </div>
+
+      <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
     </nav>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,33 +15,24 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Wand2, Sparkle, Trash2 } from 'lucide-react'
-import { getCharacterList, deleteCharacter } from '@/services/character'
-import type { Character } from '@/types/character'
+import { deleteCharacter } from '@/services/character'
 import { toast } from 'sonner'
 import CreateCharacterModal from '@/components/character/CreateCharacterModal'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db } from '@/lib/db'
 
 const CharacterPage = () => {
-  const [isLoading, setIsLoading] = useState(true)
-  const [characterList, setCharacterList] = useState<Character[]>([])
   const [preDeletedId, setPreDeletedId] = useState<number | null>(null)
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false)
 
   const navigate = useNavigate()
 
-  const fetchCharacterList = async () => {
-    setIsLoading(true)
-    try {
-      const data = await getCharacterList()
-      setCharacterList(data.characterList)
-    } catch (error) {
-      console.error('获取角色列表失败:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-  useEffect(() => {
-    fetchCharacterList()
-  }, [])
+  // 使用 LiveQuery 自动订阅数据变化
+  const characters = useLiveQuery(() =>
+    db.characters.orderBy('updated_at').reverse().toArray()
+  )
+  const isLoading = !characters
+  const characterList = characters || []
 
   const handleEnterChat = (characterId: number) => {
     navigate(`/chat?id=${characterId}`)
@@ -54,7 +45,7 @@ const CharacterPage = () => {
     try {
       await deleteCharacter(preDeletedId)
       toast.success('删除角色成功')
-      fetchCharacterList()
+      // LiveQuery 会自动更新，不需要手动 fetch
     } catch (error) {
       console.error('删除角色失败:', error)
     } finally {
@@ -87,8 +78,8 @@ const CharacterPage = () => {
         {!isLoading &&
           characterList.map((char) => (
             <Card
-              key={char.ID}
-              onClick={() => handleEnterChat(char.ID)}
+              key={char.id}
+              onClick={() => handleEnterChat(char.id!)}
               className="group relative cursor-pointer overflow-hidden border-2 border-[#D4C5B0] bg-[#FAF5EF] transition-all hover:-translate-y-1 hover:border-[#8B5E3C] hover:shadow-lg"
             >
               <CardHeader className="pb-2">
@@ -103,7 +94,7 @@ const CharacterPage = () => {
                     variant="secondary"
                     className="bg-[#E6D5BC] text-[#2A1B0A] hover:bg-[#D4C5B0]"
                   >
-                    {char.gender === 'male' ? '巫师' : '女巫'}
+                    {char.gender === 'wizard' ? '巫师' : '女巫'}
                   </Badge>
                   <Badge
                     variant="outline"
@@ -129,7 +120,7 @@ const CharacterPage = () => {
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setPreDeletedId(char.ID)
+                  setPreDeletedId(char.id!)
                 }}
                 className="absolute right-4 bottom-4 rounded-full bg-red-100 p-2 text-red-600 hover:bg-red-200"
               >
@@ -140,22 +131,26 @@ const CharacterPage = () => {
       </div>
       <AlertDialog
         open={!!preDeletedId}
-        onOpenChange={() => setPreDeletedId(null)}
+        onOpenChange={(open) => !open && setPreDeletedId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="border border-[#D4C5B0] bg-[#FAF5EF]">
           <AlertDialogHeader>
-            <AlertDialogTitle>确定要删除该角色吗？</AlertDialogTitle>
-            <AlertDialogDescription>
-              删除角色将无法恢复，请谨慎操作。
+            <AlertDialogTitle className="text-[#2A1B0A]">
+              确认删除
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#2A1B0A]/70">
+              此操作将永久删除该角色及其所有进度。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel className="border-[#2A1B0A] text-[#2A1B0A] hover:bg-[#F0E6D8]">
+              取消
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteCharacter}
-              className="bg-red-700 hover:bg-red-800"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
-              确认删除
+              删除
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -164,7 +159,6 @@ const CharacterPage = () => {
       <CreateCharacterModal
         isOpen={isCreateModalVisible}
         onClose={() => setIsCreateModalVisible(false)}
-        onSuccess={() => fetchCharacterList()}
       />
     </div>
   )

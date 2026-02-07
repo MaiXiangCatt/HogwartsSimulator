@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router'
-import Navbar from './navbar'
+import Navbar from './Navbar'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { useUserStore } from '@/store/user'
 
