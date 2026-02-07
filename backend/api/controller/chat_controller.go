@@ -3,41 +3,81 @@ package controller
 import (
 	"bufio"
 	"bytes"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/MaiXiangCatt/HogwartsSimulator/backend/internal/model"
+	"github.com/MaiXiangCatt/HogwartsSimulator/backend/config"
 	"github.com/gin-gonic/gin"
 )
 
-type ChatRequest struct {
-	Message string `json:"message"`
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type FrontedRequest struct {
+	Messages []Message             `json:"messages"`
+	Summary  string                `json:"summary"`
+	Status   model.CharacterStatus `json:"status"`
+	APIKey   string                `json:"api_key"`
+	Model    string                `json:"model"`
+}
+
+type AgentRequest struct {
+	Messages []Message `json:"messages"`
+	APIKey   string    `json:"api_key"`
+	Model    string    `json:"model"`
 }
 
 func ChatHandler(c *gin.Context) {
-
-	// 1.前端参数暂时模拟，实际应该从 PostForm 或 JSON Body 获取
-	userMsg := c.Query("message") 
-	if userMsg == "" {
-		userMsg = "Hello World"
+	var req FrontedRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "参数格式错误"})
+		return
+	}
+	if req.APIKey == "" {
+		c.JSON(400, gin.H{"error": "API Key 不能为空"})
+		return
 	}
 
 	// 2. 准备发给 Python 的数据
-	pyReq := ChatRequest{Message: userMsg}
+	statusBytes, err := json.Marshal(req.Status)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "无法序列化状态"})
+		return
+	}
+	fullSystemPrompt := buildSystemPrompt(req.Summary, string(statusBytes))
+
+	fmt.Printf("=========== DEBUG SYSTEM PROMPT ===========\n%s\n===========================================\n", fullSystemPrompt)
+
+	agentMessages := []Message{
+		{Role: "system", Content: fullSystemPrompt},
+	}
+	agentMessages = append(agentMessages, req.Messages...)
+	pyReq := AgentRequest{
+		Messages: agentMessages,
+		APIKey:   req.APIKey,
+		Model:    req.Model,
+	}
 	jsonData, _ := json.Marshal(pyReq)
 
 	// 3. 创建发往 Python 服务的 HTTP 请求
 	// 注意：这里要确保你的 Python 服务已经启动在 8000 端口
-	req, err := http.NewRequest("POST", "http://localhost:8000/chat", bytes.NewBuffer(jsonData))
+	proxyReq, err := http.NewRequest("POST", "http://localhost:8000/chat", bytes.NewBuffer(jsonData))
 	if err != nil {
 		c.JSON(500, gin.H{"error": "无法创建请求"})
 		return
 	}
-	req.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("Content-Type", "application/json")
 
 	// 4. 发起请求 (关键：使用 http.Client)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	client := &http.Client{Timeout: 3000 * time.Second}
+	resp, err := client.Do(proxyReq)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "连接 AI 服务失败"})
 		return
@@ -58,11 +98,11 @@ func ChatHandler(c *gin.Context) {
 	for {
 		// 每次从 Python 读取一个字节或一行
 		// 为了演示效果，我们按字节读取，或者按块读取
-		
+
 		// 定义一个缓冲
-		buf := make([]byte, 1024) 
+		buf := make([]byte, 1024)
 		n, err := reader.Read(buf)
-		
+
 		if err == io.EOF {
 			// Python 说完了
 			break
@@ -75,13 +115,24 @@ func ChatHandler(c *gin.Context) {
 
 		// 拿到 Python 的数据 chunk
 		chunk := buf[:n]
-		
+
 		// 7. 格式化为 SSE 格式并写入前端
 		// SSE 标准格式为: "data: <内容>\n\n"
 		// 这样前端 EventSource 才能识别
 		fmt.Fprintf(c.Writer, "data: %s\n\n", string(chunk))
-		
+
 		// 8. 必须 Flush！否则数据会积压在缓冲区，等全部完了才一次性发过去，就没有打字机效果了
 		c.Writer.Flush()
 	}
+}
+
+func buildSystemPrompt(summary string, statusJSON string) string {
+	return fmt.Sprintf(`%s
+
+---
+[REAL-TIME GAME DATA]
+The following data represents the current truth of the world.
+Summary: %s
+Status: %s
+`, config.SystemPromptMVP, summary, statusJSON)
 }

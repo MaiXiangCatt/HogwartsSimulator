@@ -22,10 +22,10 @@ func main() {
 	}))
 	r.POST("/api/auth/register", controller.Register)
 	r.POST("/api/auth/login", controller.Login)
+	r.POST("/api/chat", controller.ChatHandler)
 	authGroup := r.Group("/api")
 	authGroup.Use(middleware.JWTAUth())
 	{
-		authGroup.POST("/chat", controller.ChatHandler)
 		authGroup.GET("/auth/user", controller.GetUserInfo)
 		authGroup.POST("/character", controller.CreateCharacter)
 		authGroup.GET("/character", controller.GetCharacterList)
