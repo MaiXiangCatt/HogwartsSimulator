@@ -77,12 +77,12 @@ const LoginForm = ({
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#2A1B0A]">用户名</FormLabel>
+                <FormLabel className="text-foreground">用户名</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="请输入用户名"
                     {...field}
-                    className="border-[#D4C5B0] bg-white text-[#2A1B0A] placeholder-[#2A1B0A]/40 focus-visible:ring-[#8B5E3C]"
+                    className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   />
                 </FormControl>
                 <FormMessage />
@@ -94,13 +94,13 @@ const LoginForm = ({
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#2A1B0A]">密码</FormLabel>
+                <FormLabel className="text-foreground">密码</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
                     placeholder="请输入密码"
                     {...field}
-                    className="border-[#D4C5B0] bg-white text-[#2A1B0A] placeholder-[#2A1B0A]/40 focus-visible:ring-[#8B5E3C]"
+                    className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   />
                 </FormControl>
                 <FormMessage />
@@ -109,19 +109,19 @@ const LoginForm = ({
           />
           <Button
             type="submit"
-            className="w-full bg-[#2A1B0A] text-white transition-all hover:scale-[1.02] hover:bg-[#3D2810]"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full transition-all hover:scale-[1.02]"
           >
             登录
           </Button>
         </form>
       </Form>
-      <div className="text-center text-xs text-[#2A1B0A]/60">
+      <div className="text-muted-foreground text-center text-xs">
         <p>
           还没有账号？{' '}
           <Button
             variant="link"
             onClick={onSwitch}
-            className="h-auto p-0 font-bold text-[#2A1B0A] underline hover:text-[#2A1B0A]"
+            className="text-primary hover:text-primary h-auto p-0 font-bold underline"
           >
             注册
           </Button>
@@ -168,12 +168,12 @@ const RegisterForm = ({
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#2A1B0A]">用户名</FormLabel>
+                <FormLabel className="text-foreground">用户名</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="请输入用户名"
                     {...field}
-                    className="border-[#D4C5B0] bg-white text-[#2A1B0A] placeholder-[#2A1B0A]/40 focus-visible:ring-[#8B5E3C]"
+                    className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   />
                 </FormControl>
                 <FormMessage />
@@ -185,13 +185,13 @@ const RegisterForm = ({
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#2A1B0A]">密码</FormLabel>
+                <FormLabel className="text-foreground">密码</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
                     placeholder="请输入密码"
                     {...field}
-                    className="border-[#D4C5B0] bg-white text-[#2A1B0A] placeholder-[#2A1B0A]/40 focus-visible:ring-[#8B5E3C]"
+                    className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   />
                 </FormControl>
                 <FormMessage />
@@ -203,12 +203,12 @@ const RegisterForm = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#2A1B0A]">邮箱</FormLabel>
+                <FormLabel className="text-foreground">邮箱</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="请输入邮箱"
                     {...field}
-                    className="border-[#D4C5B0] bg-white text-[#2A1B0A] placeholder-[#2A1B0A]/40 focus-visible:ring-[#8B5E3C]"
+                    className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   />
                 </FormControl>
                 <FormMessage />
@@ -217,19 +217,19 @@ const RegisterForm = ({
           />
           <Button
             type="submit"
-            className="w-full bg-[#2A1B0A] text-white transition-all hover:scale-[1.02] hover:bg-[#3D2810]"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full transition-all hover:scale-[1.02]"
           >
             注册
           </Button>
         </form>
       </Form>
-      <div className="text-center text-xs text-[#2A1B0A]/60">
+      <div className="text-muted-foreground text-center text-xs">
         <p>
           已经有账号了？{' '}
           <Button
             variant="link"
             onClick={onSwitch}
-            className="h-auto p-0 font-bold text-[#2A1B0A] underline hover:text-[#2A1B0A]"
+            className="text-primary hover:text-primary h-auto p-0 font-bold underline"
           >
             登录
           </Button>
@@ -265,19 +265,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       open={isOpen}
       onOpenChange={onClose}
     >
-      <DialogContent className="overflow-hidden border border-[#D4C5B0] bg-[#FAF5EF] p-0 sm:max-w-md">
+      <DialogContent className="bg-card overflow-hidden p-0 sm:max-w-md">
         <DialogHeader className="sr-only">
           <DialogTitle>认证</DialogTitle>
         </DialogHeader>
 
-        <div className="flex border-b border-[#D4C5B0]">
+        <div className="border-border flex border-b">
           <Button
             variant="ghost"
             onClick={() => setActiveTab('login')}
             className={`h-auto flex-1 rounded-none py-4 text-center font-serif text-lg font-bold transition-colors ${
               activeTab === 'login'
-                ? 'bg-[#FAF5EF] text-[#2A1B0A] hover:bg-[#FAF5EF]'
-                : 'bg-[#F0E6D8] text-[#2A1B0A]/60 hover:bg-[#F5EBE0]'
+                ? 'bg-card text-foreground hover:bg-card'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
             }`}
           >
             登录
@@ -287,8 +287,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             onClick={() => setActiveTab('register')}
             className={`h-auto flex-1 rounded-none py-4 text-center font-serif text-lg font-bold transition-colors ${
               activeTab === 'register'
-                ? 'bg-[#FAF5EF] text-[#2A1B0A] hover:bg-[#FAF5EF]'
-                : 'bg-[#F0E6D8] text-[#2A1B0A]/60 hover:bg-[#F5EBE0]'
+                ? 'bg-card text-foreground hover:bg-card'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
             }`}
           >
             注册
@@ -296,8 +296,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         <div className="p-8">
-          <div className="mb-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900 border border-amber-200">
-            💡 提示：本游戏支持离线游玩！您不需要注册即可体验完整内容。注册/登录仅用于开启【云存档】功能。
+          <div className="bg-secondary text-secondary-foreground border-secondary-foreground/20 mb-4 rounded-md border p-3 text-sm">
+            💡
+            提示：本游戏支持离线游玩！您不需要注册即可体验完整内容。注册/登录仅用于开启【云存档】功能。
           </div>
           {activeTab === 'login' ? (
             <LoginForm

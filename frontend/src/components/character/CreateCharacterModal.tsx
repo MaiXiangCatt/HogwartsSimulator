@@ -75,17 +75,17 @@ const CreateCharacterModal = ({
 
   // Styles matching AuthModal vintage theme
   const inputClass =
-    'border-[#D4C5B0] bg-white text-[#2A1B0A] placeholder-[#2A1B0A]/40 focus-visible:ring-[#8B5E3C]'
-  const labelClass = 'text-[#2A1B0A]'
+    'border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring'
+  const labelClass = 'text-foreground'
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={onClose}
     >
-      <DialogContent className="border border-[#D4C5B0] bg-[#FAF5EF] sm:max-w-125">
+      <DialogContent className="bg-card sm:max-w-125">
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl font-bold text-[#2A1B0A]">
+          <DialogTitle className="font-serif text-2xl font-bold">
             创建角色
           </DialogTitle>
         </DialogHeader>
@@ -213,14 +213,14 @@ const CreateCharacterModal = ({
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  className="border-[#2A1B0A] text-[#2A1B0A] hover:bg-[#F0E6D8]"
+                  className="border-primary text-primary hover:bg-secondary"
                 >
                   取消
                 </Button>
                 <Button
                   type="submit"
                   disabled={form.formState.isSubmitting}
-                  className="bg-[#2A1B0A] text-white hover:bg-[#3D2810]"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   创建
                 </Button>

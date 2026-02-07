@@ -37,30 +37,29 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
     onOpenChange(false)
   }
 
+  const inputClass =
+    'border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring'
+  const labelClass = 'text-foreground'
+
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="border border-[#D4C5B0] bg-[#FAF5EF] sm:max-w-[425px]">
+      <DialogContent className="bg-card sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl font-bold text-[#2A1B0A]">
+          <DialogTitle className="font-serif text-2xl font-bold">
             API连接设置
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label
-              htmlFor="model"
-              className="text-[#2A1B0A]"
-            >
-              模型
-            </Label>
+            <Label htmlFor="model" className={labelClass}>模型</Label>
             <Select
               value={model}
               onValueChange={setModel}
             >
-              <SelectTrigger className="border-[#2A1B0A]/20 bg-white">
+              <SelectTrigger className={inputClass}>
                 <SelectValue placeholder="选择模型" />
               </SelectTrigger>
               <SelectContent position="popper">
@@ -71,32 +70,23 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label
-              htmlFor="apiKey"
-              className="text-[#2A1B0A]"
-            >
-              API Key
-            </Label>
+            <Label htmlFor="apiKey" className={labelClass}>API Key</Label>
             <Input
               id="apiKey"
               type="password"
               placeholder="sk-..."
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="border-[#2A1B0A]/20 bg-white"
+              className={inputClass}
             />
-            <p className="text-sm text-[#2A1B0A]/60">
-              您的 Key 仅存储在本地浏览器中，不会上传服务器，请放心使用。
+            <p className="text-muted-foreground text-sm">
+              您的 Key
+              仅存储在本地浏览器中，绝不会上传到我们的服务器，请放心使用。
             </p>
           </div>
         </div>
         <div className="flex justify-end">
-          <Button
-            onClick={handleSave}
-            className="bg-[#2A1B0A] text-[#F5E6D3] hover:bg-[#3D2810]"
-          >
-            保存
-          </Button>
+          <Button onClick={handleSave}>保存</Button>
         </div>
       </DialogContent>
     </Dialog>

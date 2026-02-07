@@ -56,11 +56,11 @@ const CharacterPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="font-serif text-3xl font-bold text-[#2A1B0A]">
+        <h1 className="text-foreground font-serif text-3xl font-bold">
           角色列表
         </h1>
         <Button
-          className="gap-2 bg-[#2A1B0A] text-[#F5E6D3] hover:bg-[#3D2810]"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
           onClick={() => setIsCreateModalVisible(true)}
         >
           创建角色
@@ -72,7 +72,7 @@ const CharacterPage = () => {
           Array.from({ length: 3 }).map((_, index) => (
             <Skeleton
               key={index}
-              className="h-50 w-full rounded-xl bg-[#2A1B0A]/10"
+              className="bg-primary/10 h-50 w-full rounded-xl"
             />
           ))}
         {!isLoading &&
@@ -80,32 +80,32 @@ const CharacterPage = () => {
             <Card
               key={char.id}
               onClick={() => handleEnterChat(char.id!)}
-              className="group relative cursor-pointer overflow-hidden border-2 border-[#D4C5B0] bg-[#FAF5EF] transition-all hover:-translate-y-1 hover:border-[#8B5E3C] hover:shadow-lg"
+              className="group border-border bg-card hover:border-ring relative cursor-pointer overflow-hidden border-2 transition-all hover:-translate-y-1 hover:shadow-lg"
             >
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle>{char.name}</CardTitle>
-                  <span className="font-mono text-xs text-[#2A1B0A]/40">
+                  <span className="text-muted-foreground font-mono text-xs">
                     {char.status.current_year || 1991}
                   </span>
                 </div>
                 <div className="mt-1 flex gap-2">
                   <Badge
                     variant="secondary"
-                    className="bg-[#E6D5BC] text-[#2A1B0A] hover:bg-[#D4C5B0]"
+                    className="bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   >
                     {char.gender === 'wizard' ? '巫师' : '女巫'}
                   </Badge>
                   <Badge
                     variant="outline"
-                    className="border-[#8B5E3C] text-[#8B5E3C]"
+                    className="border-ring text-ring"
                   >
                     {char.blood_status}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 text-sm text-[#2A1B0A]/70">
+                <div className="text-muted-foreground space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Wand2 size={14} />
                     <span>魔杖: {char.wand}</span>
@@ -122,7 +122,7 @@ const CharacterPage = () => {
                   e.stopPropagation()
                   setPreDeletedId(char.id!)
                 }}
-                className="absolute right-4 bottom-4 rounded-full bg-red-100 p-2 text-red-600 hover:bg-red-200"
+                className="bg-destructive/10 text-destructive hover:bg-destructive/20 absolute right-4 bottom-4 rounded-full p-2"
               >
                 <Trash2 size={14} />
               </Button>
@@ -133,22 +133,22 @@ const CharacterPage = () => {
         open={!!preDeletedId}
         onOpenChange={(open) => !open && setPreDeletedId(null)}
       >
-        <AlertDialogContent className="border border-[#D4C5B0] bg-[#FAF5EF]">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-[#2A1B0A]">
+            <AlertDialogTitle className="text-foreground">
               确认删除
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-[#2A1B0A]/70">
+            <AlertDialogDescription className="text-muted-foreground">
               此操作将永久删除该角色及其所有进度。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-[#2A1B0A] text-[#2A1B0A] hover:bg-[#F0E6D8]">
+            <AlertDialogCancel className="border-primary text-primary hover:bg-muted">
               取消
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteCharacter}
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               删除
             </AlertDialogAction>

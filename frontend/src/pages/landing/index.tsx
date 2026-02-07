@@ -46,7 +46,7 @@ const LandingPage = () => {
           <div className="pt-8">
             <button
               onClick={handleStart}
-              className="rounded-lg bg-[#2A1B0A] px-8 py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-105 hover:bg-[#3D2810]"
+              className="rounded-lg bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:bg-primary/90"
             >
               开始体验
             </button>
@@ -55,18 +55,18 @@ const LandingPage = () => {
 
         {/* Scroll Indicator (Optional but nice) */}
         <div className="absolute bottom-8 animate-bounce opacity-50">
-          <div className="h-12 w-0.5 bg-[#2A1B0A]/30"></div>
+          <div className="h-12 w-0.5 bg-primary/30"></div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-[#2A1B0A]/5 px-6 py-24 md:px-12">
+      <section className="bg-primary/5 px-6 py-24 md:px-12">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {/* Card 1 */}
-            <Card className="group border-2 border-[#2A1B0A]/10 bg-transparent transition-all hover:border-[#2A1B0A]/30 hover:bg-[#F5E6D3]">
+            <Card className="group border-2 border-primary/10 bg-transparent transition-all hover:border-primary/30 hover:bg-secondary">
               <CardHeader>
-                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-[#2A1B0A]/10 p-3 text-[#2A1B0A] transition-colors group-hover:bg-[#2A1B0A] group-hover:text-[#F5E6D3]">
+                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <Scroll size={24} />
                 </div>
                 <CardTitle className="font-serif text-xl font-bold">
@@ -81,9 +81,9 @@ const LandingPage = () => {
             </Card>
 
             {/* Card 2 */}
-            <Card className="group border-2 border-[#2A1B0A]/10 bg-transparent transition-all hover:border-[#2A1B0A]/30 hover:bg-[#F5E6D3]">
+            <Card className="group border-2 border-primary/10 bg-transparent transition-all hover:border-primary/30 hover:bg-secondary">
               <CardHeader>
-                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-[#2A1B0A]/10 p-3 text-[#2A1B0A] transition-colors group-hover:bg-[#2A1B0A] group-hover:text-[#F5E6D3]">
+                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <Dices size={24} />
                 </div>
                 <CardTitle className="font-serif text-xl font-bold">
@@ -98,9 +98,9 @@ const LandingPage = () => {
             </Card>
 
             {/* Card 3 */}
-            <Card className="group border-2 border-[#2A1B0A]/10 bg-transparent transition-all hover:border-[#2A1B0A]/30 hover:bg-[#F5E6D3]">
+            <Card className="group border-2 border-primary/10 bg-transparent transition-all hover:border-primary/30 hover:bg-secondary">
               <CardHeader>
-                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-[#2A1B0A]/10 p-3 text-[#2A1B0A] transition-colors group-hover:bg-[#2A1B0A] group-hover:text-[#F5E6D3]">
+                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <BookOpen size={24} />
                 </div>
                 <CardTitle className="font-serif text-xl font-bold">

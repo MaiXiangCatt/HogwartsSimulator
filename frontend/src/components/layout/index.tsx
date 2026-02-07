@@ -7,7 +7,7 @@ const RootLayout = () => {
   const { isAuthModalOpen, authModalTab, closeAuthModal } = useUserStore()
 
   return (
-    <div className="min-h-screen w-full bg-[#F5E6D3] font-sans text-[#2A1B0A] selection:bg-[#2A1B0A] selection:text-[#F5E6D3]">
+    <div className="bg-background text-foreground selection:bg-primary selection:text-primary-foreground min-h-screen w-full font-sans">
       <Navbar />
       <main className="pt-20">
         <Outlet />
