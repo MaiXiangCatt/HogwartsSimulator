@@ -1,9 +1,9 @@
 import { cn } from '@/lib/utils'
 import Markdown from 'react-markdown'
-import type { ChatMessageType } from '@/types/chat'
+import type { ChatLog } from '@/types/chat'
 
 export interface ChatMessageProps {
-  message: ChatMessageType
+  message: ChatLog
 }
 
 const ChatMessage = ({ message }: ChatMessageProps) => {

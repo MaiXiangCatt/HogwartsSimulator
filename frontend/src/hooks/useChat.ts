@@ -1,37 +1,78 @@
-import { useState } from 'react'
-import type { ChatMessageType } from '@/types/chat'
+import { useRef, useState } from 'react'
+import { db } from '@/lib/db'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { toast } from 'sonner'
 
-export function useChat() {
-  const [messages, setMessages] = useState<ChatMessageType[]>([])
+export function useChat(characterId: number) {
+  const messages =
+    useLiveQuery(
+      () => db.logs.where({ character_id: characterId }).sortBy('timestamp'),
+      [characterId]
+    ) || []
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const sendMessage = async (message: string) => {
     if (!message.trim()) {
       return
     }
-    const newUserMessage: ChatMessageType = { role: 'user', content: message }
-    setMessages((prevMessages) => [...prevMessages, newUserMessage])
     setIsLoading(true)
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/game/chat?message=${encodeURIComponent(message)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      const apiKey = localStorage.getItem('hogwarts_api_key')
+      if (!apiKey) {
+        toast.error('请先填写 API Key')
+        setIsLoading(false)
+        return
+      }
+      const character = await db.characters.get(characterId)
+      if (!character) {
+        toast.error('角色不存在')
+        setIsLoading(false)
+        return
+      }
+      await db.logs.add({
+        character_id: characterId,
+        role: 'user',
+        content: message,
+        timestamp: Date.now(),
+      })
+      const recentHistory = await db.logs
+        .where({ character_id: characterId })
+        .reverse()
+        .limit(20)
+        .toArray()
+      const payloadMessages = recentHistory.reverse().map((log) => ({
+        role: log.role,
+        content: log.content,
+      }))
+      abortControllerRef.current = new AbortController()
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: payloadMessages,
+          summary: character.summary,
+          status: character.status,
+          api_key: apiKey,
+          model: localStorage.getItem('hogwart_model') || 'deepseek-reasoner',
+        }),
+        signal: abortControllerRef.current.signal,
+      })
       if (!response.ok || !response.body) {
         throw new Error('Network response was not ok')
       }
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
 
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: 'ai', content: '' },
-      ])
+      const aiMessageId = await db.logs.add({
+        character_id: characterId,
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now() + 1,
+      })
+      let aiContent = ''
 
       while (true) {
         const { done, value } = await reader.read()
@@ -43,29 +84,34 @@ export function useChat() {
         for (const line of lines) {
           if (line.startsWith('data:')) {
             const message = line.slice(6).trim()
-            setMessages((prevMessages) => {
-              const lastMsg = prevMessages[prevMessages.length - 1]
-              if (lastMsg && lastMsg.role === 'ai') {
-                return [
-                  ...prevMessages.slice(0, -1),
-                  { ...lastMsg, content: lastMsg.content + message },
-                ]
-              }
-              return prevMessages
-            })
+            aiContent += message
+            await db.logs.update(aiMessageId, { content: aiContent })
           }
         }
       }
-    } catch (error) {
+      const statusRegex = /<update_status>(.*?)<\/update_status>/s
+      const match = aiContent.match(statusRegex)
+      if (match) {
+        console.log('检测到状态更新', match[1])
+      }
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return
+      }
       console.error('Error:', error)
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: 'ai', content: '猫头鹰迷路了...' },
-      ])
+      toast.error(error.message || '猫头鹰迷路了...')
     } finally {
+      setIsLoading(false)
+      abortControllerRef.current = null
+    }
+  }
+
+  const stopGenerate = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
       setIsLoading(false)
     }
   }
 
-  return { messages, isLoading, sendMessage }
+  return { messages, isLoading, sendMessage, stopGenerate }
 }

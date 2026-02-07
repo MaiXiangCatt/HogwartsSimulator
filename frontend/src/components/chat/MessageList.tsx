@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 import ChatMessage from '@/components/chat/ChatMessage'
-import type { ChatMessageType } from '@/types/chat'
+import type { ChatLog } from '@/types/chat'
 
 interface MessageListProps {
-  messages: ChatMessageType[]
+  messages: ChatLog[]
 }
 
 const MessageList = ({ messages }: MessageListProps) => {
