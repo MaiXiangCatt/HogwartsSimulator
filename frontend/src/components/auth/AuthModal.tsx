@@ -118,12 +118,13 @@ const LoginForm = ({
       <div className="text-center text-xs text-[#2A1B0A]/60">
         <p>
           还没有账号？{' '}
-          <button
+          <Button
+            variant="link"
             onClick={onSwitch}
-            className="font-bold underline hover:text-[#2A1B0A]"
+            className="h-auto p-0 font-bold text-[#2A1B0A] underline hover:text-[#2A1B0A]"
           >
             注册
-          </button>
+          </Button>
         </p>
       </div>
     </div>
@@ -225,12 +226,13 @@ const RegisterForm = ({
       <div className="text-center text-xs text-[#2A1B0A]/60">
         <p>
           已经有账号了？{' '}
-          <button
+          <Button
+            variant="link"
             onClick={onSwitch}
-            className="font-bold underline hover:text-[#2A1B0A]"
+            className="h-auto p-0 font-bold text-[#2A1B0A] underline hover:text-[#2A1B0A]"
           >
             登录
-          </button>
+          </Button>
         </p>
       </div>
     </div>
@@ -269,26 +271,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </DialogHeader>
 
         <div className="flex border-b border-[#D4C5B0]">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => setActiveTab('login')}
-            className={`flex-1 py-4 text-center font-serif text-lg font-bold transition-colors ${
+            className={`h-auto flex-1 rounded-none py-4 text-center font-serif text-lg font-bold transition-colors ${
               activeTab === 'login'
-                ? 'bg-[#FAF5EF] text-[#2A1B0A]'
+                ? 'bg-[#FAF5EF] text-[#2A1B0A] hover:bg-[#FAF5EF]'
                 : 'bg-[#F0E6D8] text-[#2A1B0A]/60 hover:bg-[#F5EBE0]'
             }`}
           >
             登录
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => setActiveTab('register')}
-            className={`flex-1 py-4 text-center font-serif text-lg font-bold transition-colors ${
+            className={`h-auto flex-1 rounded-none py-4 text-center font-serif text-lg font-bold transition-colors ${
               activeTab === 'register'
-                ? 'bg-[#FAF5EF] text-[#2A1B0A]'
+                ? 'bg-[#FAF5EF] text-[#2A1B0A] hover:bg-[#FAF5EF]'
                 : 'bg-[#F0E6D8] text-[#2A1B0A]/60 hover:bg-[#F5EBE0]'
             }`}
           >
             注册
-          </button>
+          </Button>
         </div>
 
         <div className="p-8">

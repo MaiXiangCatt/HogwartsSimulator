@@ -37,16 +37,16 @@ export const useUserStore = create<UserStore>((set) => ({
   authModalTab: 'login',
 
   login: (userData: UserInfo, token: string) => {
-    localStorage.setItem('token', token)
+    localStorage.setItem('jwtToken', token)
     set({ user: userData, isAuthenticated: true, isLoading: false })
   },
   logout: () => {
-    localStorage.removeItem('token')
+    localStorage.removeItem('jwtToken')
     set({ user: null, isAuthenticated: false })
     toast.success('已成功登出')
   },
   checkAuth: async () => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('jwtToken')
     if (!token) {
       set({ user: null, isAuthenticated: false, isLoading: false })
       return
@@ -57,7 +57,7 @@ export const useUserStore = create<UserStore>((set) => ({
     } catch (error) {
       console.error('Error checking authentication:', error)
       set({ user: null, isAuthenticated: false, isLoading: false })
-      localStorage.removeItem('token')
+      localStorage.removeItem('jwtToken')
     }
   },
 

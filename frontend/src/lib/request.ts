@@ -6,6 +6,7 @@ import type {
   AxiosRequestConfig,
 } from 'axios'
 import { toast } from 'sonner'
+import { useUserStore } from '@/store/user';
 
 // 定义 API 响应的统一格式
 export interface BaseResponse<T = any> {
@@ -66,7 +67,7 @@ service.interceptors.response.use(
             message = '用户名或密码错误'
           } else {
             message = '身份验证过期，请重新登录'
-            localStorage.removeItem('jwtToken')
+            useUserStore.getState().logout()
             setTimeout(() => {
               window.location.href = '/'
             }, 1000)
