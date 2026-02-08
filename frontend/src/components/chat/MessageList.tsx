@@ -4,9 +4,11 @@ import type { ChatLog } from '@/types/chat'
 
 interface MessageListProps {
   messages: ChatLog[]
+  onDelete?: (id: number) => void
+  onUpdate?: (id: number, content: string) => void
 }
 
-const MessageList = ({ messages }: MessageListProps) => {
+const MessageList = ({ messages, onDelete, onUpdate }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom when messages change
@@ -25,6 +27,8 @@ const MessageList = ({ messages }: MessageListProps) => {
         <ChatMessage
           key={msg.role + index}
           message={msg}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
         />
       ))}
     </div>

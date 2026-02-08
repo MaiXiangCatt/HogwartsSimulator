@@ -8,5 +8,6 @@ export interface ChatLog {
   character_id: number
   role: 'user' | 'assistant' | 'system'
   content: string
+  reasoning_content?: string
   timestamp: number
 }

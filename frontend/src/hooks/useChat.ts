@@ -70,9 +70,11 @@ export function useChat(characterId: number) {
         character_id: characterId,
         role: 'assistant',
         content: '',
+        reasoning_content: '',
         timestamp: Date.now() + 1,
       })
       let aiContent = ''
+      let reasoningContent = ''
 
       while (true) {
         const { done, value } = await reader.read()
@@ -83,9 +85,24 @@ export function useChat(characterId: number) {
         const lines = chunk.split('\n')
         for (const line of lines) {
           if (line.startsWith('data:')) {
-            const message = line.slice(6).trim()
-            aiContent += message
-            await db.logs.update(aiMessageId, { content: aiContent })
+            const message = line.slice(5).trim()
+            if (!message) {
+              continue
+            }
+            if (message.includes('[THOUGHT]')) {
+              const cleanMessage = message.replace(/\[THOUGHT\]/g, '')
+              reasoningContent += cleanMessage
+              await db.logs.update(aiMessageId, {
+                reasoning_content: reasoningContent,
+                content: aiContent,
+              })
+            } else {
+              aiContent += message
+              await db.logs.update(aiMessageId, {
+                reasoning_content: reasoningContent,
+                content: aiContent,
+              })
+            }
           }
         }
       }
@@ -113,5 +130,22 @@ export function useChat(characterId: number) {
     }
   }
 
-  return { messages, isLoading, sendMessage, stopGenerate }
+  const deleteMessage = async (id: number) => {
+    await db.logs.delete(id)
+    toast.success('消息删除成功')
+  }
+
+  const updateMessage = async (id: number, content: string) => {
+    await db.logs.update(id, { content })
+    toast.success('消息更新成功')
+  }
+
+  return {
+    messages,
+    isLoading,
+    sendMessage,
+    stopGenerate,
+    deleteMessage,
+    updateMessage,
+  }
 }
