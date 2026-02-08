@@ -25,20 +25,20 @@ const ChatInput = ({ onSend, isDisabled }: ChatInputProps) => {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-end gap-3 p-2">
       <Textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeydown}
         placeholder="Type a message..."
-        className="max-h-32 resize-none pr-12"
+        className="bg-chat-input border-border focus-visible:ring-ring max-h-32 min-h-[50px] w-full resize-none rounded-xl shadow-sm focus-visible:ring-1"
       />
       <Button
-        size="icon-lg"
-        variant="ghost"
-        className="rounded-full"
+        onClick={handleSend}
+        disabled={isDisabled || input.trim() === ''}
+        className="bg-primary text-primary-foreground hover:bg-chat-send-hover h-[50px] w-[50px] shrink-0 rounded-full shadow-md transition-colors"
       >
-        <Send className="h-6 w-6" />
+        <Send className="h-5 w-5" />
       </Button>
     </div>
   )

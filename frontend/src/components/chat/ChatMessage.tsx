@@ -13,11 +13,11 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   return (
     <div
       className={cn(
-        'markdown-body max-w-[80%] rounded-lg p-3 text-sm',
+        'markdown-body max-w-[80%] rounded-lg p-3 text-sm shadow-sm',
         // Flex alignment: self-end for user (right), self-start for AI (left)
         isUser
           ? 'bg-primary text-primary-foreground self-end'
-          : 'bg-muted text-foreground self-start'
+          : 'bg-card text-card-foreground border self-start'
       )}
     >
       <Markdown>{content}</Markdown>

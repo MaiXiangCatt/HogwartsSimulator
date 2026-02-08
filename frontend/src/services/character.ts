@@ -34,8 +34,8 @@ export const createCharacter = async (data: CraeteCharacterParams) => {
     // 初始化默认值
     status: {
       hp: 100,
-      mp: 100,
-      max_mp: 100,
+      mp: 18,
+      max_mp: 18,
       gold: 0,
       ap: 7,
       max_ap: 7,
@@ -48,7 +48,7 @@ export const createCharacter = async (data: CraeteCharacterParams) => {
       current_month: 8,
       current_week: 2,
       current_weekday: 1,
-      location: 'Hogwarts',
+      location: 'home',
       game_mode: 'weekly',
     },
     inventory: [],

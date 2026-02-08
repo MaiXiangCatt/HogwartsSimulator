@@ -7,9 +7,9 @@ const RootLayout = () => {
   const { isAuthModalOpen, authModalTab, closeAuthModal } = useUserStore()
 
   return (
-    <div className="bg-background text-foreground selection:bg-primary selection:text-primary-foreground min-h-screen w-full font-sans">
+    <div className="min-h-screen w-full font-sans">
       <Navbar />
-      <main className="pt-20">
+      <main className="pt-16">
         <Outlet />
       </main>
       <AuthModal

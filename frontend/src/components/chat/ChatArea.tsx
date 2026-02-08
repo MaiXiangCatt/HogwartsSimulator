@@ -10,9 +10,9 @@ interface ChatAreaProps {
 }
 const ChatArea = ({ messages, isLoading, onSend }: ChatAreaProps) => {
   return (
-    <div className="flex h-11/12 w-full flex-col items-center justify-between">
+    <div className="flex h-full w-full flex-col items-center justify-between ">
       <MessageList messages={messages} />
-      <div className="mt-2 mb-6 w-1/2">
+      <div className="mt-2 mb-6 w-2/3">
         <ChatInput
           onSend={onSend}
           isDisabled={isLoading}

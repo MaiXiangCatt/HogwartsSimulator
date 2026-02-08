@@ -14,10 +14,10 @@ const Navbar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   return (
-    <nav className="fixed top-0 right-0 left-0 z-40 flex items-center justify-between px-6 py-4 backdrop-blur-[2px] transition-all">
+    <nav className="bg-navbar text-navbar-foreground fixed top-0 right-0 left-0 z-40 flex h-16 items-center justify-between px-6 py-4 shadow-md transition-all">
       <Link
         to="/"
-        className="text-foreground font-serif text-xl font-bold tracking-tight hover:opacity-80"
+        className="font-serif text-xl font-bold tracking-tight hover:opacity-80"
       >
         霍格沃茨沉浸式模拟器
       </Link>
@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         <button
           onClick={() => setIsSettingsOpen(true)}
-          className="text-foreground flex items-center gap-1 text-sm font-semibold decoration-2 underline-offset-4 hover:underline"
+          className="flex items-center gap-1 text-sm font-semibold decoration-2 underline-offset-4 hover:underline"
         >
           <Settings size={16} />
           <span>设置</span>
@@ -35,7 +35,7 @@ const Navbar = () => {
           <>
             <Tooltip>
               <TooltipTrigger>
-                <div className="text-foreground flex items-center gap-2 text-sm font-semibold">
+                <div className="flex items-center gap-2 text-sm font-semibold">
                   <UserIcon size={16} />
                 </div>
               </TooltipTrigger>
@@ -45,7 +45,7 @@ const Navbar = () => {
             </Tooltip>
             <button
               onClick={logout}
-              className="text-foreground flex items-center gap-1 text-sm font-semibold decoration-2 underline-offset-4 hover:underline"
+              className="flex items-center gap-1 text-sm font-semibold decoration-2 underline-offset-4 hover:underline"
             >
               <LogOut size={16} />
               <span>退出</span>
@@ -54,7 +54,7 @@ const Navbar = () => {
         ) : (
           <button
             onClick={() => openAuthModal('login')}
-            className="text-foreground flex items-center gap-1 text-sm font-semibold decoration-2 underline-offset-4 hover:underline"
+            className="flex items-center gap-1 text-sm font-semibold decoration-2 underline-offset-4 hover:underline"
           >
             <Cloud size={16} />
             <span>云端同步</span>

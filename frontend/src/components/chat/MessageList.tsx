@@ -19,7 +19,7 @@ const MessageList = ({ messages }: MessageListProps) => {
   return (
     <div
       ref={scrollRef}
-      className="flex w-1/2 flex-col space-y-4 overflow-y-auto p-4"
+      className="flex w-2/3 flex-col space-y-4 overflow-y-auto p-4"
     >
       {messages.map((msg, index) => (
         <ChatMessage
