@@ -20,6 +20,7 @@ import { toast } from 'sonner'
 import CreateCharacterModal from '@/components/character/CreateCharacterModal'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
+import { GENDER_MAP, BLOOD_STATUS_MAP } from '@/constant'
 
 const CharacterPage = () => {
   const [preDeletedId, setPreDeletedId] = useState<number | null>(null)
@@ -94,13 +95,13 @@ const CharacterPage = () => {
                     variant="secondary"
                     className="bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   >
-                    {char.gender === 'wizard' ? '巫师' : '女巫'}
+                    {GENDER_MAP[char.gender] || char.gender}
                   </Badge>
                   <Badge
                     variant="outline"
                     className="border-ring text-ring"
                   >
-                    {char.blood_status}
+                    {BLOOD_STATUS_MAP[char.blood_status] || char.blood_status}
                   </Badge>
                 </div>
               </CardHeader>

@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/MaiXiangCatt/HogwartsSimulator/backend/internal/model"
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/config"
+	"github.com/MaiXiangCatt/HogwartsSimulator/backend/internal/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -68,7 +68,7 @@ func ChatHandler(c *gin.Context) {
 
 	// 3. 创建发往 Python 服务的 HTTP 请求
 	// 注意：这里要确保你的 Python 服务已经启动在 8000 端口
-	proxyReq, err := http.NewRequest("POST", "http://localhost:8000/chat", bytes.NewBuffer(jsonData))
+	proxyReq, err := http.NewRequestWithContext(c.Request.Context(), "POST", "http://localhost:8000/chat", bytes.NewBuffer(jsonData))
 	if err != nil {
 		c.JSON(500, gin.H{"error": "无法创建请求"})
 		return
@@ -96,8 +96,13 @@ func ChatHandler(c *gin.Context) {
 	reader := bufio.NewReader(resp.Body)
 
 	for {
-		// 每次从 Python 读取一个字节或一行
-		// 为了演示效果，我们按字节读取，或者按块读取
+		select {
+		case <-c.Request.Context().Done():
+			// 前端关闭了连接
+			fmt.Println("前端链接已断开")
+			return
+		default:
+		}
 
 		// 定义一个缓冲
 		buf := make([]byte, 1024)

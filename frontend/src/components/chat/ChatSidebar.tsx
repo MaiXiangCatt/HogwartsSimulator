@@ -18,6 +18,7 @@ import {
   Zap,
   Activity,
 } from 'lucide-react'
+import { GENDER_MAP, BLOOD_STATUS_MAP } from '@/constant'
 
 interface ChatSidebarProps {
   characterInfo: Character
@@ -61,7 +62,7 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
           />
           <InfoRow
             label="性别"
-            value={characterInfo.gender}
+            value={GENDER_MAP[characterInfo.gender] || characterInfo.gender}
           />
           <InfoRow
             label="学院"
@@ -69,7 +70,10 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
           />
           <InfoRow
             label="血统"
-            value={characterInfo.blood_status}
+            value={
+              BLOOD_STATUS_MAP[characterInfo.blood_status] ||
+              characterInfo.blood_status
+            }
           />
           <InfoRow
             label="魔杖"

@@ -129,8 +129,8 @@ const CreateCharacterModal = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent position="popper">
-                        <SelectItem value="wizard">巫师 (Wizard)</SelectItem>
-                        <SelectItem value="witch">女巫 (Witch)</SelectItem>
+                        <SelectItem value="wizard">巫师</SelectItem>
+                        <SelectItem value="witch">女巫</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -154,15 +154,9 @@ const CreateCharacterModal = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent position="popper">
-                        <SelectItem value="pure_blood">
-                          纯血 (Pure-blood)
-                        </SelectItem>
-                        <SelectItem value="half_blood">
-                          混血 (Half-blood)
-                        </SelectItem>
-                        <SelectItem value="muggle_born">
-                          麻瓜 (Muggle-born)
-                        </SelectItem>
+                        <SelectItem value="pure_blood">纯血</SelectItem>
+                        <SelectItem value="half_blood">混血</SelectItem>
+                        <SelectItem value="muggle_born">麻瓜</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

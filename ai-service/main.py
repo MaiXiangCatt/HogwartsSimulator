@@ -2,7 +2,7 @@ import time
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 app = FastAPI()
 
@@ -11,14 +11,14 @@ MODEL_URL_MAP = {
     "deepseek-chat": "https://api.deepseek.com",
 }
 
-def llm_stream_generator(client: OpenAI, model: str, messages: list):
+async def llm_stream_generator(client: AsyncOpenAI, model: str, messages: list):
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model = model,
             messages = messages,
             stream = True
         )
-        for chunk in response:
+        async for chunk in response:
             # 1. 处理推理内容
             if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
                 reasoning = chunk.choices[0].delta.reasoning_content
@@ -46,7 +46,7 @@ async def chat_endpoint(request: Request):
 
     base_url = MODEL_URL_MAP.get(model)
 
-    client = OpenAI(
+    client = AsyncOpenAI(
         api_key = api_key,
         base_url = base_url
     )

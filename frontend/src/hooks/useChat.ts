@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { db } from '@/lib/db'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { toast } from 'sonner'
+import { parseAndUpdateState } from '@/lib/utils'
 
 export function useChat(characterId: number) {
   const messages =
@@ -106,11 +107,7 @@ export function useChat(characterId: number) {
           }
         }
       }
-      const statusRegex = /<update_status>(.*?)<\/update_status>/s
-      const match = aiContent.match(statusRegex)
-      if (match) {
-        console.log('检测到状态更新', match[1])
-      }
+      await parseAndUpdateState(characterId, aiContent)
     } catch (error: any) {
       if (error.name === 'AbortError') {
         return

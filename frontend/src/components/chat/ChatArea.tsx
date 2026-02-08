@@ -14,6 +14,7 @@ const ChatArea = ({
   messages,
   isLoading,
   onSend,
+  onStop,
   onDelete,
   onUpdate,
 }: ChatAreaProps) => {
@@ -27,7 +28,8 @@ const ChatArea = ({
       <div className="mt-2 mb-6 w-2/3">
         <ChatInput
           onSend={onSend}
-          isDisabled={isLoading}
+          onStop={onStop}
+          isLoading={isLoading}
         />
       </div>
     </div>
