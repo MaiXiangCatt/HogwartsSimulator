@@ -8,17 +8,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Scroll,
   Backpack,
+  Calendar,
   Users,
   Coins,
   Heart,
+  MapPin,
   Zap,
   Activity,
+  UserPen,
 } from 'lucide-react'
 import { GENDER_MAP, BLOOD_STATUS_MAP } from '@/constant'
+import { useState } from 'react'
+import { db } from '@/lib/db'
+import { toast } from 'sonner'
 
 interface ChatSidebarProps {
   characterInfo: Character
@@ -44,7 +52,22 @@ const SectionTitle = ({ title }: { title: string }) => (
 )
 
 const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
-  const { status, inventory, spells, relationships } = characterInfo
+  const { status, inventory, spells, relationships, persona, id } =
+    characterInfo
+  const [personaInput, setPersonaInput] = useState(persona || '')
+  const [isPersonaDialogOpen, setIsPersonaDialogOpen] = useState(false)
+
+  const handleSavePersona = async () => {
+    if (!id) return
+    try {
+      await db.characters.update(id, { persona: personaInput })
+      toast.success('人设更新成功')
+      setIsPersonaDialogOpen(false)
+    } catch (error) {
+      toast.error('人设更新失败了...')
+      console.error(error)
+    }
+  }
 
   return (
     <div className="bg-sidebar flex h-full w-1/5 flex-col overflow-auto border-r">
@@ -83,6 +106,49 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
             label="守护神"
             value={characterInfo.patronus || '未掌握'}
           />
+
+          {/* 人设 */}
+          <div className="my-2 flex items-center justify-between gap-4">
+            <span className="text-muted-foreground text-sm">角色人设</span>
+            <Dialog
+              open={isPersonaDialogOpen}
+              onOpenChange={setIsPersonaDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-2"
+                  onClick={() => setPersonaInput(persona || '')}
+                >
+                  <UserPen size={14} />
+                  <span>编辑</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-card sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>编辑角色人设</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <Textarea
+                    value={personaInput}
+                    onChange={(e) => setPersonaInput(e.target.value)}
+                    placeholder="输入角色的性格、动机、缺点甚至家庭背景等详细设定...人设不是必须的, 设定后有助于AI输出更符合您预期的剧情, 提高沉浸感。"
+                    className="max-h-80 min-h-50 overflow-auto"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsPersonaDialogOpen(false)}
+                  >
+                    取消
+                  </Button>
+                  <Button onClick={handleSavePersona}>保存</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
 
           {/* 状态 */}
           {status && (
@@ -128,6 +194,24 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
                   </div>
                 }
               />
+              <InfoRow
+                label="当前时间"
+                value={
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <Calendar size={14} />
+                    <span>{`${status.current_year}年${status.current_month}月第${status.current_week}周`}</span>
+                  </div>
+                }
+              />
+              <InfoRow
+                label="当前位置"
+                value={
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <MapPin size={14} />
+                    <span>{status.location || '未知'}</span>
+                  </div>
+                }
+              />
 
               {/* 属性 */}
               <SectionTitle title="属性" />
@@ -155,7 +239,7 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
           )}
 
           {/* 更多详情 (弹窗) */}
-          <SectionTitle title="详细资料" />
+          <SectionTitle title="更多详情" />
 
           {/* 咒语 */}
           <div className="my-2 flex items-center justify-between gap-4">
@@ -225,13 +309,16 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
                 </DialogHeader>
                 <ScrollArea className="h-[300px] w-full pr-4">
                   <div className="flex flex-col gap-2">
-                    {inventory && inventory.length > 0 ? (
-                      inventory.map((item, index) => (
+                    {inventory && Object.keys(inventory).length > 0 ? (
+                      Object.entries(inventory).map(([name, info]) => (
                         <div
-                          key={index}
-                          className="bg-background/50 flex items-center rounded-md border p-3"
+                          key={name}
+                          className="bg-background/50 flex items-center justify-between gap-4 rounded-md border p-3"
                         >
-                          <span className="font-medium">{item}</span>
+                          <span className="shrink-0 font-medium">{name}</span>
+                          <span className="text-muted-foreground line-clamp-2 text-right text-xs">
+                            {info.desc}
+                          </span>
                         </div>
                       ))
                     ) : (

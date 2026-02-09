@@ -33,6 +33,10 @@ export interface RelationInfo {
   desc: string
 }
 
+export interface InventoryItemInfo {
+  desc: string
+}
+
 export interface Character {
   id?: number // 自增主键
   name: string
@@ -44,10 +48,11 @@ export interface Character {
 
   // --- 核心存档数据 ---
   summary: string // AI 的剧情长文本记忆 (最重要)
+  persona?: string // 角色的人设，包括性格、缺点和动机等。
 
   // --- 结构化数据 (UI 渲染用) ---
   status: CharacterStatus
-  inventory: string[] // 物品列表
+  inventory: Record<string, InventoryItemInfo> // 物品列表
   spells: Record<string, SpellInfo> // 技能表
   relationships: Record<string, RelationInfo> // 关系表
   world_log: string[] // 世界线变动 Tags

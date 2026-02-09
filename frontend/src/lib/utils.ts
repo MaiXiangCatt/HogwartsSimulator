@@ -9,8 +9,13 @@ import type {
 } from '@/types/character'
 
 interface AIStateUpdatePayload {
+  house?: string
   status?: Partial<CharacterStatus>
-  inventory_events?: Array<{ op: 'add' | 'remove'; item: string }>
+  inventory_events?: Array<{
+    op: 'add' | 'remove'
+    item: string
+    desc?: string
+  }>
   spells?: Record<string, SpellInfo>
   relationships?: Record<string, RelationInfo>
   world_log_add?: string
@@ -65,6 +70,10 @@ export const parseAndUpdateState = async (
     const updatesToApply: Partial<Character> = {
       updated_at: Date.now(),
     }
+    // 分院时更新学院
+    if (updates.house) {
+      updatesToApply.house = updates.house
+    }
 
     // 更新status
     if (updates.status) {
@@ -75,14 +84,16 @@ export const parseAndUpdateState = async (
     }
     // 更新背包
     if (updates.inventory_events && Array.isArray(updates.inventory_events)) {
-      const newInventory = [...(character.inventory || [])]
+      const newInventory = { ...(character.inventory || {}) }
 
       updates.inventory_events.forEach((event) => {
+        if (!event.item) return
         if (event.op === 'add') {
-          newInventory.push(event.item)
+          newInventory[event.item] = {
+            desc: event.desc || '一件神秘的物品',
+          }
         } else if (event.op === 'remove') {
-          const idx = newInventory.indexOf(event.item)
-          if (idx > -1) newInventory.splice(idx, 1)
+          delete newInventory[event.item]
         }
       })
       updatesToApply.inventory = newInventory

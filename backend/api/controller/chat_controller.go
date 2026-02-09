@@ -23,6 +23,7 @@ type Message struct {
 type FrontedRequest struct {
 	Messages []Message             `json:"messages"`
 	Summary  string                `json:"summary"`
+	Persona  string                `json:"persona"`
 	Status   model.CharacterStatus `json:"status"`
 	APIKey   string                `json:"api_key"`
 	Model    string                `json:"model"`
@@ -44,6 +45,7 @@ func ChatHandler(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "API Key 不能为空"})
 		return
 	}
+	isPrologue := req.Status.CurrentYear == 1991 && req.Status.CurrentMonth <= 9 && req.Status.CurrentWeek <= 2
 
 	// 2. 准备发给 Python 的数据
 	statusBytes, err := json.Marshal(req.Status)
@@ -51,12 +53,15 @@ func ChatHandler(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "无法序列化状态"})
 		return
 	}
-	fullSystemPrompt := buildSystemPrompt(req.Summary, string(statusBytes))
+	fullSystemPrompt := buildSystemPrompt(req.Summary, req.Persona, string(statusBytes))
 
 	fmt.Printf("=========== DEBUG SYSTEM PROMPT ===========\n%s\n===========================================\n", fullSystemPrompt)
 
 	agentMessages := []Message{
 		{Role: "system", Content: fullSystemPrompt},
+	}
+	if isPrologue {
+		agentMessages = append(agentMessages, Message{Role: "system", Content: config.SystemPrologueRules})
 	}
 	agentMessages = append(agentMessages, req.Messages...)
 	pyReq := AgentRequest{
@@ -131,13 +136,17 @@ func ChatHandler(c *gin.Context) {
 	}
 }
 
-func buildSystemPrompt(summary string, statusJSON string) string {
+func buildSystemPrompt(summary string, persona string, statusJSON string) string {
 	return fmt.Sprintf(`%s
 
 ---
+[PLAYER PERSONA]
+(The following describes the protagonist's inner world and behavior logic. YOU MUST ADHERE TO THIS CHARACTERIZATION.)
+%s
+
+---
 [REAL-TIME GAME DATA]
-The following data represents the current truth of the world.
 Summary: %s
 Status: %s
-`, config.SystemPromptMVP, summary, statusJSON)
+`, config.SystemCoreRules, persona, summary, statusJSON)
 }

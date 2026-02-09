@@ -55,6 +55,7 @@ export function useChat(characterId: number) {
         body: JSON.stringify({
           messages: payloadMessages,
           summary: character.summary,
+          persona: character.persona || '',
           status: character.status,
           api_key: apiKey,
           model: localStorage.getItem('hogwart_model') || 'deepseek-reasoner',
@@ -74,7 +75,8 @@ export function useChat(characterId: number) {
         reasoning_content: '',
         timestamp: Date.now() + 1,
       })
-      let aiContent = ''
+      let rawAIContent = ''
+      let cleanAIContent = ''
       let reasoningContent = ''
 
       while (true) {
@@ -95,19 +97,23 @@ export function useChat(characterId: number) {
               reasoningContent += cleanMessage
               await db.logs.update(aiMessageId, {
                 reasoning_content: reasoningContent,
-                content: aiContent,
+                content: cleanAIContent,
               })
             } else {
-              aiContent += message
-              await db.logs.update(aiMessageId, {
-                reasoning_content: reasoningContent,
-                content: aiContent,
-              })
+              rawAIContent += message
+              const tagIndex = rawAIContent.indexOf('<state_update>')
+              if (tagIndex !== -1) {
+                cleanAIContent = rawAIContent.substring(0, tagIndex)
+                await db.logs.update(aiMessageId, { content: cleanAIContent })
+              } else {
+                cleanAIContent += message
+                await db.logs.update(aiMessageId, { content: cleanAIContent })
+              }
             }
           }
         }
       }
-      await parseAndUpdateState(characterId, aiContent)
+      await parseAndUpdateState(characterId, rawAIContent)
     } catch (error: any) {
       if (error.name === 'AbortError') {
         return
