@@ -22,7 +22,6 @@ export const getCharacterList = async () => {
 // }
 
 export const createCharacter = async (data: CraeteCharacterParams) => {
-
   const newChar: Character = {
     name: data.name,
     gender: data.gender,
@@ -30,7 +29,7 @@ export const createCharacter = async (data: CraeteCharacterParams) => {
     blood_status: data.blood_status,
     wand: data.wand,
     patronus: data.patronus,
-    
+
     // 初始化默认值
     status: {
       hp: 100,
@@ -55,9 +54,10 @@ export const createCharacter = async (data: CraeteCharacterParams) => {
     spells: {},
     relationships: {},
     world_log: [],
-    summary: '',
+    summary: [],
     persona: '',
     updated_at: Date.now(),
+    last_summary_timestamp: Date.now(),
   }
   console.log('newChar', newChar)
   return await db.characters.add(newChar)
@@ -77,4 +77,11 @@ export const deleteCharacter = async (id: number) => {
     await db.characters.delete(id)
     await db.logs.where({ character_id: id }).delete()
   })
+}
+
+export const updateCharacter = async (
+  id: number,
+  updates: Partial<Character>
+) => {
+  return await db.characters.update(id, updates)
 }

@@ -47,7 +47,8 @@ export interface Character {
   patronus: string
 
   // --- 核心存档数据 ---
-  summary: string // AI 的剧情长文本记忆 (最重要)
+  summary: string[] // AI 的剧情长文本记忆 (最重要)
+
   persona?: string // 角色的人设，包括性格、缺点和动机等。
 
   // --- 结构化数据 (UI 渲染用) ---
@@ -58,6 +59,7 @@ export interface Character {
   world_log: string[] // 世界线变动 Tags
 
   updated_at: number // 时间戳
+  last_summary_timestamp: number // 上次自动总结的时间戳
 }
 
 // 保留原有的 API 响应接口，或者根据新架构调整。

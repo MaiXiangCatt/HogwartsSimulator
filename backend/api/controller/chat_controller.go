@@ -2,12 +2,14 @@ package controller
 
 import (
 	"bytes"
-	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
+
+	_ "embed"
 
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/config"
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/internal/model"
@@ -37,7 +39,7 @@ type GameState struct {
 
 type FrontedRequest struct {
 	Messages  []Message `json:"messages"`
-	Summary   string    `json:"summary"`
+	Summary   []string  `json:"summary"`
 	Persona   string    `json:"persona"`
 	GameState GameState `json:"game_state"`
 	APIKey    string    `json:"api_key"`
@@ -48,10 +50,6 @@ type AgentRequest struct {
 	Messages []Message `json:"messages"`
 	APIKey   string    `json:"api_key"`
 	Model    string    `json:"model"`
-}
-
-type StreamResponse struct {
-	Content string `json:"content"`
 }
 
 func ChatHandler(c *gin.Context) {
@@ -137,11 +135,11 @@ func ChatHandler(c *gin.Context) {
 				return
 			}
 		}
-
 	}
 }
 
-func buildSystemPrompt(summary string, persona string, gameStateJSON string) string {
+func buildSystemPrompt(summary []string, persona string, gameStateJSON string) string {
+	summaryStr := strings.Join(summary, "\n")
 	return fmt.Sprintf(`%s
 
 ---
@@ -157,5 +155,5 @@ func buildSystemPrompt(summary string, persona string, gameStateJSON string) str
 ---
 [STORY SUMMARY]
 %s
-`, config.SystemCoreRules, persona, gameStateJSON, summary)
+`, config.SystemCoreRules, persona, gameStateJSON, summaryStr)
 }

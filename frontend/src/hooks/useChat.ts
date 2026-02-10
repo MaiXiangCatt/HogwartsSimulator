@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { db } from '@/lib/db'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { toast } from 'sonner'
 import { parseAndUpdateState } from '@/lib/utils'
 import type { ChatResponseData } from '@/types/chat'
+import { summarizeStory } from '@/services/ai'
 
 export function useChat(characterId: number) {
   const messages =
@@ -13,6 +14,79 @@ export function useChat(characterId: number) {
     ) || []
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const isSummarizingRef = useRef(false)
+
+  // 自动总结检测
+  useEffect(() => {
+    const checkAndSummarize = async () => {
+      if (isLoading || isSummarizingRef.current || !characterId) return
+
+      try {
+        const character = await db.characters.get(characterId)
+        if (!character) return
+
+        const lastTime = character.last_summary_timestamp || 0
+        const newLogsCount = await db.logs
+          .where('character_id')
+          .equals(characterId)
+          .filter((log) => log.timestamp > lastTime)
+          .count()
+
+        // 30轮对话 = 60条消息
+        if (newLogsCount >= 60) {
+          isSummarizingRef.current = true
+
+          const newLogs = await db.logs
+            .where('character_id')
+            .equals(characterId)
+            .filter((log) => log.timestamp > lastTime)
+            .sortBy('timestamp')
+
+          if (newLogs.length === 0) {
+            isSummarizingRef.current = false
+            return
+          }
+
+          const apiKey = localStorage.getItem('hogwarts_api_key') || ''
+          const model =
+            localStorage.getItem('hogwarts_model') || 'deepseek-reasoner'
+
+          if (!apiKey) {
+            isSummarizingRef.current = false
+            return
+          }
+
+          const apiMessages = newLogs.map((log) => ({
+            role: log.role,
+            content: log.content,
+          }))
+
+          const res = await summarizeStory({
+            messages: apiMessages,
+            api_key: apiKey,
+            model: model,
+          })
+
+          if (res && res.summary) {
+            const currentSummary = character.summary || []
+            await db.characters.update(characterId, {
+              summary: [...currentSummary, res.summary],
+              last_summary_timestamp: newLogs[newLogs.length - 1].timestamp,
+            })
+            toast.success('剧情已自动归档', {
+              description: '系统已生成新的剧情摘要',
+            })
+          }
+        }
+      } catch (error) {
+        console.error('自动总结失败:', error)
+      } finally {
+        isSummarizingRef.current = false
+      }
+    }
+
+    checkAndSummarize()
+  }, [isLoading, characterId])
 
   const sendMessage = async (message: string) => {
     if (!message.trim()) {

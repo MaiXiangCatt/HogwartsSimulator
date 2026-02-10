@@ -14,15 +14,16 @@ func main() {
 	database.Init()
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:5173"},
-		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
-		MaxAge: 12 * time.Hour,
+		MaxAge:           12 * time.Hour,
 	}))
 	r.POST("/api/auth/register", controller.Register)
 	r.POST("/api/auth/login", controller.Login)
 	r.POST("/api/chat", controller.ChatHandler)
+	r.POST("/api/ai/summarize", controller.SummarizeHandler)
 	authGroup := r.Group("/api")
 	authGroup.Use(middleware.JWTAUth())
 	{

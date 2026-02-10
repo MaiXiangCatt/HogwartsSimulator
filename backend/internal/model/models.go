@@ -26,11 +26,12 @@ type Character struct {
 
 	Spells        SpellMap        `gorm:"type:json;serializer:json" json:"spells"`        // 咒语
 	Relationships RelationshipMap `gorm:"type:json;serializer:json" json:"relationships"` // 羁绊
-	Inventory     InventoryMap        `gorm:"type:json;serializer:json" json:"inventory"`     // 物品栏
+	Inventory     InventoryMap    `gorm:"type:json;serializer:json" json:"inventory"`     // 物品栏
 	WorldLog      []string        `gorm:"type:json;serializer:json" json:"world_log"`     // 世界线变动
 
-	Summary  string    `gorm:"type:text" json:"summary"`
-	Messages []Message `gorm:"foreignKey:CharacterID;references:ID" json:"messages"`
+	Summary              []string  `gorm:"type:json;serializer:json" json:"summary"`
+	LastSummaryTimestamp int64     `json:"last_summary_timestamp"`
+	Messages             []Message `gorm:"foreignKey:CharacterID;references:ID" json:"messages"`
 }
 
 type CharacterStatus struct {
@@ -75,7 +76,7 @@ type (
 )
 
 type (
-	InventoryMap map[string]InventoryInfo
+	InventoryMap  map[string]InventoryInfo
 	InventoryInfo struct {
 		Desc string `json:"desc"` // 物品描述
 	}

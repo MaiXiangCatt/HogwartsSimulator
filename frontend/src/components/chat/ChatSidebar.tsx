@@ -22,11 +22,14 @@ import {
   Zap,
   Activity,
   UserPen,
+  BookOpen,
+  Settings2,
 } from 'lucide-react'
 import { GENDER_MAP, BLOOD_STATUS_MAP } from '@/constant'
 import { useState } from 'react'
 import { db } from '@/lib/db'
 import { toast } from 'sonner'
+import UpdateCharacterModal from '@/components/character/UpdateCharacterModal'
 
 interface ChatSidebarProps {
   characterInfo: Character
@@ -52,10 +55,11 @@ const SectionTitle = ({ title }: { title: string }) => (
 )
 
 const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
-  const { status, inventory, spells, relationships, persona, id } =
+  const { status, inventory, spells, relationships, persona, id, summary } =
     characterInfo
   const [personaInput, setPersonaInput] = useState(persona || '')
   const [isPersonaDialogOpen, setIsPersonaDialogOpen] = useState(false)
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
 
   const handleSavePersona = async () => {
     if (!id) return
@@ -71,8 +75,17 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
 
   return (
     <div className="bg-sidebar flex h-full w-1/5 flex-col overflow-auto border-r">
-      <div className="border-b p-4">
+      <div className="flex items-center justify-between border-b p-4">
+        <div className="w-8" />
         <h2 className="text-center font-serif text-xl font-bold">角色档案</h2>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground hover:text-foreground h-8 w-8"
+          onClick={() => setIsUpdateModalOpen(true)}
+        >
+          <Settings2 size={18} />
+        </Button>
       </div>
 
       <ScrollArea className="flex-1 px-4 py-2">
@@ -386,8 +399,57 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
               </DialogContent>
             </Dialog>
           </div>
+
+          {/* 剧情总结 */}
+          <div className="my-2 flex items-center justify-between gap-4">
+            <span className="text-muted-foreground text-sm">剧情总结</span>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-2"
+                >
+                  <BookOpen size={14} />
+                  <span>查看</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-card sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>剧情总结</DialogTitle>
+                </DialogHeader>
+                <ScrollArea className="h-[300px] w-full pr-4">
+                  <div className="flex flex-col gap-4">
+                    {summary && summary.length > 0 ? (
+                      summary.map((item, index) => (
+                        <div
+                          key={index}
+                          className="bg-background/50 rounded-md border p-3 text-sm leading-relaxed"
+                        >
+                          <div className="text-muted-foreground mb-1 text-xs font-bold">
+                            Chapter {index + 1}
+                          </div>
+                          {item}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-muted-foreground py-8 text-center">
+                        暂无剧情总结
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </ScrollArea>
+
+      <UpdateCharacterModal
+        character={characterInfo}
+        open={isUpdateModalOpen}
+        onOpenChange={setIsUpdateModalOpen}
+      />
     </div>
   )
 }
