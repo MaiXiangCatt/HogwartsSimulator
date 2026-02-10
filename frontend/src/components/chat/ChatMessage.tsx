@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import Markdown from 'react-markdown'
+import remarkBreaks from 'remark-breaks'
 import type { ChatLog } from '@/types/chat'
 import { useState } from 'react'
 import {
@@ -130,7 +131,7 @@ const ChatMessage = ({ message, onDelete, onUpdate }: ChatMessageProps) => {
         )}
 
         {/* Main Content */}
-        <Markdown>{content}</Markdown>
+        <Markdown remarkPlugins={[remarkBreaks]}>{content}</Markdown>
       </div>
 
       {/* Actions Menu (Right side for Assistant) */}

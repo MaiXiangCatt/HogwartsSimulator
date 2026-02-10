@@ -25,8 +25,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { createCharacter } from '@/services/character'
 import { toast } from 'sonner'
+import { CircleHelp, ExternalLink } from 'lucide-react'
 
 export interface CreateCharacterModalProps {
   isOpen: boolean
@@ -170,10 +176,51 @@ const CreateCharacterModal = ({
               name="wand"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={labelClass}>魔杖</FormLabel>
+                  <FormLabel
+                    className={`${labelClass} flex items-center gap-2`}
+                  >
+                    魔杖
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4 rounded-full"
+                          type="button"
+                        >
+                          <CircleHelp className="h-3 w-3" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <div className="space-y-2">
+                          <p className="text-muted-foreground text-sm">
+                            每一根魔杖都是独一无二的。如果你不知道怎么填，建议去官网进行测试。
+                          </p>
+                          <a
+                            href="https://www.harrypotter.com/wand"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary flex items-center text-sm hover:underline"
+                          >
+                            前往英文官网测试{' '}
+                            <ExternalLink className="ml-1 h-3 w-3" />
+                          </a>
+                          <a
+                            href="https://wizard-tool.com/tests/wand.html"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary flex items-center text-sm hover:underline"
+                          >
+                            前往魔法工具集中文测试{' '}
+                            <ExternalLink className="ml-1 h-3 w-3" />
+                          </a>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="例如：10¾英寸，葡萄藤木，龙心弦"
+                      placeholder="例如：10¾英寸，葡萄藤木，龙心弦，不易弯曲"
                       {...field}
                       className={inputClass}
                     />
@@ -188,7 +235,48 @@ const CreateCharacterModal = ({
               name="patronus"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={labelClass}>守护神</FormLabel>
+                  <FormLabel
+                    className={`${labelClass} flex items-center gap-2`}
+                  >
+                    守护神
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4 rounded-full"
+                          type="button"
+                        >
+                          <CircleHelp className="h-3 w-3" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <div className="space-y-2">
+                          <p className="text-muted-foreground text-sm">
+                            守护神有很多种。如果你不知道怎么填，建议去官网进行测试。
+                          </p>
+                          <a
+                            href="https://www.harrypotter.com/patronus"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary flex items-center text-sm hover:underline"
+                          >
+                            前往英文官网测试{' '}
+                            <ExternalLink className="ml-1 h-3 w-3" />
+                          </a>
+                          <a
+                            href="https://wizard-tool.com/tests/shouhushen.html"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary flex items-center text-sm hover:underline"
+                          >
+                            前往魔法工具集中文测试{' '}
+                            <ExternalLink className="ml-1 h-3 w-3" />
+                          </a>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="例如：水獭"

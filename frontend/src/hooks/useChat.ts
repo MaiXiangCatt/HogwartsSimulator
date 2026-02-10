@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { toast } from 'sonner'
 import { parseAndUpdateState } from '@/lib/utils'
+import type { ChatResponseData } from '@/types/chat'
 
 export function useChat(characterId: number) {
   const messages =
@@ -56,9 +57,23 @@ export function useChat(characterId: number) {
           messages: payloadMessages,
           summary: character.summary,
           persona: character.persona || '',
-          status: character.status,
+          game_state: {
+            profile: {
+              name: character.name,
+              gender: character.gender,
+              house: character.house || '未分院',
+              blood_status: character.blood_status,
+              wand: character.wand,
+              patronus: character.patronus,
+            },
+            status: character.status,
+            inventory: character.inventory || {},
+            spells: character.spells || {},
+            relationships: character.relationships || {},
+            world_log: character.world_log || [],
+          },
           api_key: apiKey,
-          model: localStorage.getItem('hogwart_model') || 'deepseek-reasoner',
+          model: localStorage.getItem('hogwarts_model') || 'deepseek-reasoner',
         }),
         signal: abortControllerRef.current.signal,
       })
@@ -88,13 +103,18 @@ export function useChat(characterId: number) {
         const lines = chunk.split('\n')
         for (const line of lines) {
           if (line.startsWith('data:')) {
-            const message = line.slice(5).trim()
+            const jsonStr = line.slice(5).trim()
+            if (!jsonStr) {
+              continue
+            }
+            const data = JSON.parse(jsonStr) as ChatResponseData
+            const type = data.type
+            const message = data.content
             if (!message) {
               continue
             }
-            if (message.includes('[THOUGHT]')) {
-              const cleanMessage = message.replace(/\[THOUGHT\]/g, '')
-              reasoningContent += cleanMessage
+            if (type === 'thought') {
+              reasoningContent += message
               await db.logs.update(aiMessageId, {
                 reasoning_content: reasoningContent,
                 content: cleanAIContent,

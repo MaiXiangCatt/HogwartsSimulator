@@ -11,3 +11,8 @@ export interface ChatLog {
   reasoning_content?: string
   timestamp: number
 }
+
+export interface ChatResponseData {
+  type: string
+  content: string
+}

@@ -54,7 +54,12 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="model" className={labelClass}>模型</Label>
+            <Label
+              htmlFor="model"
+              className={labelClass}
+            >
+              模型
+            </Label>
             <Select
               value={model}
               onValueChange={setModel}
@@ -66,11 +71,22 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                 <SelectItem value="deepseek-reasoner">
                   deepseek-reasoner
                 </SelectItem>
+                <SelectItem value="gemini-3-pro-preview">
+                  gemini-3-pro
+                </SelectItem>
+                <SelectItem value="gemini-2.5-pro">
+                  gemini-2.5-pro
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="apiKey" className={labelClass}>API Key</Label>
+            <Label
+              htmlFor="apiKey"
+              className={labelClass}
+            >
+              API Key
+            </Label>
             <Input
               id="apiKey"
               type="password"

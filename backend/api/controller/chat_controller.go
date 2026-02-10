@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"bufio"
 	"bytes"
 	_ "embed"
 	"encoding/json"
@@ -19,20 +18,40 @@ type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
+type Profile struct {
+	Name        string `json:"name"`
+	Gender      string `json:"gender"`
+	House       string `json:"house"`
+	BloodStatus string `json:"blood_status"`
+	Wand        string `json:"wand"`
+	Patronus    string `json:"patronus"`
+}
+type GameState struct {
+	Status        model.CharacterStatus `json:"status"`
+	Profile       Profile               `json:"profile"`
+	Inventory     model.InventoryMap    `json:"inventory"`
+	Spells        model.SpellMap        `json:"spells"`
+	Relationships model.RelationshipMap `json:"relationships"`
+	WorldLog      []string              `json:"world_log"`
+}
 
 type FrontedRequest struct {
-	Messages []Message             `json:"messages"`
-	Summary  string                `json:"summary"`
-	Persona  string                `json:"persona"`
-	Status   model.CharacterStatus `json:"status"`
-	APIKey   string                `json:"api_key"`
-	Model    string                `json:"model"`
+	Messages  []Message `json:"messages"`
+	Summary   string    `json:"summary"`
+	Persona   string    `json:"persona"`
+	GameState GameState `json:"game_state"`
+	APIKey    string    `json:"api_key"`
+	Model     string    `json:"model"`
 }
 
 type AgentRequest struct {
 	Messages []Message `json:"messages"`
 	APIKey   string    `json:"api_key"`
 	Model    string    `json:"model"`
+}
+
+type StreamResponse struct {
+	Content string `json:"content"`
 }
 
 func ChatHandler(c *gin.Context) {
@@ -45,15 +64,15 @@ func ChatHandler(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "API Key 不能为空"})
 		return
 	}
-	isPrologue := req.Status.CurrentYear == 1991 && req.Status.CurrentMonth <= 9 && req.Status.CurrentWeek <= 2
+	isPrologue := req.GameState.Status.CurrentYear == 1991 && req.GameState.Status.CurrentMonth <= 9 && req.GameState.Status.CurrentWeek <= 2
 
 	// 2. 准备发给 Python 的数据
-	statusBytes, err := json.Marshal(req.Status)
+	gameStateBytes, err := json.MarshalIndent(req.GameState, "", "  ") // Indent 是为了好看，调试方便
 	if err != nil {
 		c.JSON(500, gin.H{"error": "无法序列化状态"})
 		return
 	}
-	fullSystemPrompt := buildSystemPrompt(req.Summary, req.Persona, string(statusBytes))
+	fullSystemPrompt := buildSystemPrompt(req.Summary, req.Persona, string(gameStateBytes))
 
 	fmt.Printf("=========== DEBUG SYSTEM PROMPT ===========\n%s\n===========================================\n", fullSystemPrompt)
 
@@ -97,9 +116,8 @@ func ChatHandler(c *gin.Context) {
 	c.Writer.Header().Set("Connection", "keep-alive")
 	c.Writer.Header().Set("Transfer-Encoding", "chunked")
 
-	// 6. 建立管道：从 Python 读，往前端写
-	reader := bufio.NewReader(resp.Body)
-
+	// 6. 直接从resp.Body读，往c.Writer写，因为python已经保证了格式正确
+	buf := make([]byte, 4096)
 	for {
 		select {
 		case <-c.Request.Context().Done():
@@ -107,36 +125,23 @@ func ChatHandler(c *gin.Context) {
 			fmt.Println("前端链接已断开")
 			return
 		default:
+			n, err := resp.Body.Read(buf)
+			if n > 0 {
+				c.Writer.Write(buf[:n])
+				c.Writer.Flush()
+			}
+			if err != nil {
+				if err != io.EOF {
+					fmt.Println("Error reading response body:", err)
+				}
+				return
+			}
 		}
 
-		// 定义一个缓冲
-		buf := make([]byte, 1024)
-		n, err := reader.Read(buf)
-
-		if err == io.EOF {
-			// Python 说完了
-			break
-		}
-		if err != nil {
-			// 出错了
-			fmt.Println("读取错误:", err)
-			break
-		}
-
-		// 拿到 Python 的数据 chunk
-		chunk := buf[:n]
-
-		// 7. 格式化为 SSE 格式并写入前端
-		// SSE 标准格式为: "data: <内容>\n\n"
-		// 这样前端 EventSource 才能识别
-		fmt.Fprintf(c.Writer, "data: %s\n\n", string(chunk))
-
-		// 8. 必须 Flush！否则数据会积压在缓冲区，等全部完了才一次性发过去，就没有打字机效果了
-		c.Writer.Flush()
 	}
 }
 
-func buildSystemPrompt(summary string, persona string, statusJSON string) string {
+func buildSystemPrompt(summary string, persona string, gameStateJSON string) string {
 	return fmt.Sprintf(`%s
 
 ---
@@ -145,8 +150,12 @@ func buildSystemPrompt(summary string, persona string, statusJSON string) string
 %s
 
 ---
-[REAL-TIME GAME DATA]
-Summary: %s
-Status: %s
-`, config.SystemCoreRules, persona, summary, statusJSON)
+[FULL GAME STATE (Database Truth)]
+(This JSON contains the absolute truth of the player's current status, inventory, skills, and relationships. You MUST base your logic and narration on this data.)
+%s
+
+---
+[STORY SUMMARY]
+%s
+`, config.SystemCoreRules, persona, gameStateJSON, summary)
 }
