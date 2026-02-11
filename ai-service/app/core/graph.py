@@ -91,14 +91,9 @@ async def calculator_node(state: AgentState):
     print(response.content)
     print("=" * 50 + "\n")
 
-    # 拼接返回结果
+    # 返回结果
     return {
-        "messages": [
-            {
-                "role": "assistant",
-                "content": f"{state['story_content']}\n\n{response.content}",
-            }
-        ]
+        "messages": [AIMessage(content=response.content)]
     }
 
 
