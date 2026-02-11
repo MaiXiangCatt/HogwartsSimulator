@@ -23,13 +23,17 @@ import {
   Activity,
   UserPen,
   BookOpen,
+  Globe,
   Settings2,
+  Sparkles,
+  Loader2,
 } from 'lucide-react'
 import { GENDER_MAP, BLOOD_STATUS_MAP } from '@/constant'
 import { useState } from 'react'
 import { db } from '@/lib/db'
 import { toast } from 'sonner'
 import UpdateCharacterModal from '@/components/character/UpdateCharacterModal'
+import { summarizeStory } from '@/services/ai'
 
 interface ChatSidebarProps {
   characterInfo: Character
@@ -55,11 +59,79 @@ const SectionTitle = ({ title }: { title: string }) => (
 )
 
 const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
-  const { status, inventory, spells, relationships, persona, id, summary } =
-    characterInfo
+  const {
+    status,
+    inventory,
+    spells,
+    relationships,
+    persona,
+    id,
+    summary,
+    world_log,
+  } = characterInfo
   const [personaInput, setPersonaInput] = useState(persona || '')
   const [isPersonaDialogOpen, setIsPersonaDialogOpen] = useState(false)
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
+  const [isSummarizing, setIsSummarizing] = useState(false)
+
+  const handleSummarize = async () => {
+    if (!id || isSummarizing) return
+    setIsSummarizing(true)
+    try {
+      const character = await db.characters.get(id)
+      if (!character) return
+
+      const lastTime = character.last_summary_timestamp || 0
+      const newLogs = await db.logs
+        .where('character_id')
+        .equals(id)
+        .filter((log) => log.timestamp > lastTime)
+        .sortBy('timestamp')
+
+      if (newLogs.length === 0) {
+        toast.info('暂无新剧情可总结')
+        return
+      }
+
+      const apiKey = localStorage.getItem('hogwarts_api_key') || ''
+      const model =
+        localStorage.getItem('hogwarts_model') || 'deepseek-reasoner'
+
+      if (!apiKey) {
+        toast.error('请先设置 API Key')
+        return
+      }
+
+      toast.info('正在生成剧情总结...')
+
+      const apiMessages = newLogs.map((log) => ({
+        role: log.role,
+        content: log.content,
+      }))
+
+      const res = await summarizeStory({
+        messages: apiMessages,
+        api_key: apiKey,
+        model: model,
+      })
+
+      if (res && res.summary) {
+        const currentSummary = character.summary || []
+        await db.characters.update(id, {
+          summary: [...currentSummary, res.summary],
+          last_summary_timestamp: newLogs[newLogs.length - 1].timestamp,
+        })
+        toast.success('剧情总结已更新')
+      } else {
+        toast.error('总结生成失败: 返回内容为空')
+      }
+    } catch (error) {
+      console.error('手动总结失败:', error)
+      toast.error('总结生成失败，请稍后重试')
+    } finally {
+      setIsSummarizing(false)
+    }
+  }
 
   const handleSavePersona = async () => {
     if (!id) return
@@ -418,6 +490,25 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
                 <DialogHeader>
                   <DialogTitle>剧情总结</DialogTitle>
                 </DialogHeader>
+                <div className="flex justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSummarize}
+                    disabled={isSummarizing}
+                    className="h-8 gap-1 text-xs"
+                  >
+                    {isSummarizing ? (
+                      <Loader2
+                        className="animate-spin"
+                        size={12}
+                      />
+                    ) : (
+                      <Sparkles size={12} />
+                    )}
+                    <span>生成总结</span>
+                  </Button>
+                </div>
                 <ScrollArea className="h-[300px] w-full pr-4">
                   <div className="flex flex-col gap-4">
                     {summary && summary.length > 0 ? (
@@ -435,6 +526,52 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
                     ) : (
                       <div className="text-muted-foreground py-8 text-center">
                         暂无剧情总结
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* 世界线变动 */}
+          <div className="my-2 flex items-center justify-between gap-4">
+            <span className="text-muted-foreground text-sm">世界线变动</span>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-2"
+                >
+                  <Globe size={14} />
+                  <span>查看</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-card sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>世界线变动记录</DialogTitle>
+                </DialogHeader>
+                <ScrollArea className="h-[300px] w-full pr-4">
+                  <div className="flex flex-col gap-2">
+                    {world_log && world_log.length > 0 ? (
+                      world_log.map((item, index) => (
+                        <div
+                          key={index}
+                          className="bg-background/50 flex items-start gap-2 rounded-md border p-3 text-sm"
+                        >
+                          <Badge
+                            variant="outline"
+                            className="mt-0.5 shrink-0"
+                          >
+                            #{index + 1}
+                          </Badge>
+                          <span className="leading-relaxed">{item}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-muted-foreground py-8 text-center">
+                        暂无世界线变动
                       </div>
                     )}
                   </div>

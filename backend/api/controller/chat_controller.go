@@ -62,7 +62,10 @@ func ChatHandler(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "API Key 不能为空"})
 		return
 	}
-	isPrologue := req.GameState.Status.CurrentYear == 1991 && req.GameState.Status.CurrentMonth <= 9 && req.GameState.Status.CurrentWeek <= 2
+	isPrologue := req.GameState.Status.GameMode == "prologue"
+	if !isPrologue {
+		isPrologue = req.GameState.Status.CurrentYear == 1991 && req.GameState.Status.CurrentMonth <= 9
+	}
 
 	// 2. 准备发给 Python 的数据
 	gameStateBytes, err := json.MarshalIndent(req.GameState, "", "  ") // Indent 是为了好看，调试方便
@@ -72,14 +75,14 @@ func ChatHandler(c *gin.Context) {
 	}
 	fullSystemPrompt := buildSystemPrompt(req.Summary, req.Persona, string(gameStateBytes))
 
-	fmt.Printf("=========== DEBUG SYSTEM PROMPT ===========\n%s\n===========================================\n", fullSystemPrompt)
-
 	agentMessages := []Message{
 		{Role: "system", Content: fullSystemPrompt},
 	}
 	if isPrologue {
+		fmt.Println(">>> 成功注入序章 Prompt <<<")
 		agentMessages = append(agentMessages, Message{Role: "system", Content: config.SystemPrologueRules})
 	}
+	fmt.Printf("=========== DEBUG SYSTEM PROMPT ===========\n%s\n===========================================\n", agentMessages)
 	agentMessages = append(agentMessages, req.Messages...)
 	pyReq := AgentRequest{
 		Messages: agentMessages,

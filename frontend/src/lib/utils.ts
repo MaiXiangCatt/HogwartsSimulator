@@ -123,7 +123,7 @@ export const parseAndUpdateState = async (
 
     await db.characters.update(characterId, updatesToApply)
 
-    console.groupCollapsed('🧙‍♂️ 状态已同步到数据库')
+    console.log('🧙‍♂️ 状态已同步到数据库')
     console.log('Updates:', updates)
     console.log('Applied:', updatesToApply)
   } catch (error) {

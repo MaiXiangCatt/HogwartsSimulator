@@ -5,5 +5,5 @@ export const summarizeStory = (data: {
   api_key: string
   model: string
 }) => {
-  return request.post<{ summary: string }>('/api/ai/summarize', data)
+  return request.post<{ summary: string }>('/ai/summarize', data)
 }

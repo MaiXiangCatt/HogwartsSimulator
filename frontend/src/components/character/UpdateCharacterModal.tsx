@@ -1,7 +1,12 @@
-import { useForm, type Resolver } from 'react-hook-form'
+import { useForm, type Resolver, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import type { Character } from '@/types/character'
+import type {
+  Character,
+  InventoryItemInfo,
+  SpellInfo,
+  RelationInfo,
+} from '@/types/character'
 import {
   Dialog,
   DialogContent,
@@ -11,6 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -30,7 +36,7 @@ import {
 } from '@/components/ui/form'
 import { updateCharacter } from '@/services/character'
 import { toast } from 'sonner'
-import { Save } from 'lucide-react'
+import { Save, Plus, Trash2 } from 'lucide-react'
 
 // --- Zod Schema ---
 
@@ -54,6 +60,24 @@ const statusSchema = z.object({
   game_mode: z.string(),
 })
 
+const inventoryItemSchema = z.object({
+  name: z.string().min(1, '名称不能为空'),
+  desc: z.string(),
+})
+
+const spellItemSchema = z.object({
+  name: z.string().min(1, '名称不能为空'),
+  level: z.coerce.number(),
+  desc: z.string(),
+})
+
+const relationItemSchema = z.object({
+  name: z.string().min(1, '名称不能为空'),
+  level: z.coerce.number(),
+  tag: z.string(),
+  desc: z.string(),
+})
+
 const formSchema = z.object({
   name: z.string().min(1, '姓名不能为空'),
   house: z.string(),
@@ -62,6 +86,9 @@ const formSchema = z.object({
   wand: z.string(),
   patronus: z.string(),
   status: statusSchema,
+  inventoryList: z.array(inventoryItemSchema),
+  spellsList: z.array(spellItemSchema),
+  relationshipsList: z.array(relationItemSchema),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -109,15 +136,82 @@ export default function UpdateCharacterModal({
       wand: character.wand,
       patronus: character.patronus,
       status: character.status,
+      inventoryList: Object.entries(character.inventory || {}).map(
+        ([key, value]) => ({
+          name: key,
+          desc: value.desc,
+        })
+      ),
+      spellsList: Object.entries(character.spells || {}).map(
+        ([key, value]) => ({
+          name: key,
+          level: value.level,
+          desc: value.desc,
+        })
+      ),
+      relationshipsList: Object.entries(character.relationships || {}).map(
+        ([key, value]) => ({
+          name: key,
+          level: value.level,
+          tag: value.tag,
+          desc: value.desc,
+        })
+      ),
     },
   })
 
   const { control, handleSubmit } = form
 
+  const {
+    fields: inventoryFields,
+    append: appendInventory,
+    remove: removeInventory,
+  } = useFieldArray({
+    control,
+    name: 'inventoryList',
+  })
+
+  const {
+    fields: spellFields,
+    append: appendSpell,
+    remove: removeSpell,
+  } = useFieldArray({
+    control,
+    name: 'spellsList',
+  })
+
+  const {
+    fields: relationFields,
+    append: appendRelation,
+    remove: removeRelation,
+  } = useFieldArray({
+    control,
+    name: 'relationshipsList',
+  })
+
   const onSubmit = async (values: FormValues) => {
     if (!character.id) return
 
     try {
+      const inventory: Record<string, InventoryItemInfo> = {}
+      values.inventoryList.forEach((item) => {
+        inventory[item.name] = { desc: item.desc }
+      })
+
+      const spells: Record<string, SpellInfo> = {}
+      values.spellsList.forEach((item) => {
+        spells[item.name] = { level: item.level, desc: item.desc }
+      })
+
+      const relationships: Record<string, RelationInfo> = {}
+      values.relationshipsList.forEach((item) => {
+        relationships[item.name] = {
+          level: item.level,
+          tag: item.tag,
+          desc: item.desc,
+        }
+      })
+
       const updates: Partial<Character> = {
         name: values.name,
         house: values.house,
@@ -126,6 +220,9 @@ export default function UpdateCharacterModal({
         wand: values.wand,
         patronus: values.patronus,
         status: values.status,
+        inventory,
+        spells,
+        relationships,
       }
 
       await updateCharacter(character.id, updates)
@@ -138,6 +235,11 @@ export default function UpdateCharacterModal({
     }
   }
 
+  const onInvalid = (errors: any) => {
+    console.error('Form validation errors:', errors)
+    toast.error('请检查表单填写是否完整')
+  }
+
   return (
     <Dialog
       open={open}
@@ -145,27 +247,26 @@ export default function UpdateCharacterModal({
     >
       <DialogContent className="bg-card flex max-h-[90vh] max-w-2xl flex-col">
         <DialogHeader>
-          <DialogTitle
-            font-serif
-            text-2xl
-            font-bold
-          >
+          <DialogTitle className="font-serif text-2xl font-bold">
             数据修正
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
             className="flex flex-1 flex-col overflow-hidden"
           >
             <Tabs
               defaultValue="basic"
               className="flex flex-1 flex-col overflow-hidden"
             >
-              <TabsList className="bg-muted/80 grid w-full grid-cols-2">
-                <TabsTrigger value="basic">基础信息</TabsTrigger>
-                <TabsTrigger value="status">状态属性</TabsTrigger>
+              <TabsList className="bg-muted/80 grid w-full grid-cols-5">
+                <TabsTrigger value="basic">基础</TabsTrigger>
+                <TabsTrigger value="status">状态</TabsTrigger>
+                <TabsTrigger value="inventory">物品</TabsTrigger>
+                <TabsTrigger value="spells">技能</TabsTrigger>
+                <TabsTrigger value="relationships">关系</TabsTrigger>
               </TabsList>
 
               <ScrollArea className="bg-muted/20 mt-2 flex-1 rounded-md border p-4">
@@ -182,9 +283,7 @@ export default function UpdateCharacterModal({
                         <FormItem>
                           <FormLabel>姓名</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                            />
+                            <Input {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -387,6 +486,263 @@ export default function UpdateCharacterModal({
                         />
                       ))}
                     </div>
+                  </div>
+                </TabsContent>
+
+                {/* Inventory */}
+                <TabsContent
+                  value="inventory"
+                  className="space-y-4"
+                >
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() =>
+                        appendInventory({ name: '新物品', desc: '物品描述...' })
+                      }
+                    >
+                      <Plus className="mr-2 h-4 w-4" /> 添加物品
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {inventoryFields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex items-start gap-2"
+                      >
+                        <FormField
+                          control={control}
+                          name={`inventoryList.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem className="flex-2">
+                              <FormControl>
+                                <Input
+                                  placeholder="物品名称"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={control}
+                          name={`inventoryList.${index}.desc`}
+                          render={({ field }) => (
+                            <FormItem className="flex-3">
+                              <FormControl>
+                                <Input
+                                  placeholder="描述"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeInventory(index)}
+                        >
+                          <Trash2 className="text-destructive h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Spells */}
+                <TabsContent
+                  value="spells"
+                  className="space-y-4"
+                >
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() =>
+                        appendSpell({
+                          name: '新技能',
+                          level: 1,
+                          desc: '技能效果...',
+                        })
+                      }
+                    >
+                      <Plus className="mr-2 h-4 w-4" /> 添加技能
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    {spellFields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex flex-col gap-2 rounded-md border p-3"
+                      >
+                        <div className="flex gap-2">
+                          <FormField
+                            control={control}
+                            name={`spellsList.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input
+                                    placeholder="技能名称"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={control}
+                            name={`spellsList.${index}.level`}
+                            render={({ field }) => (
+                              <FormItem className="w-24">
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="等级"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeSpell(index)}
+                          >
+                            <Trash2 className="text-destructive h-4 w-4" />
+                          </Button>
+                        </div>
+                        <FormField
+                          control={control}
+                          name={`spellsList.${index}.desc`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="技能效果描述"
+                                  {...field}
+                                  className="h-16 resize-none"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Relationships */}
+                <TabsContent
+                  value="relationships"
+                  className="space-y-4"
+                >
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() =>
+                        appendRelation({
+                          name: '新角色',
+                          level: 0,
+                          tag: '普通',
+                          desc: '关系描述...',
+                        })
+                      }
+                    >
+                      <Plus className="mr-2 h-4 w-4" /> 添加关系
+                    </Button>
+                  </div>
+                  <div className="space-y-4 overflow-auto max-h-100">
+                    {relationFields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="bg-card flex flex-col gap-2 rounded-md border p-3"
+                      >
+                        <div className="flex gap-2">
+                          <FormField
+                            control={control}
+                            name={`relationshipsList.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input
+                                    placeholder="角色名称"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={control}
+                            name={`relationshipsList.${index}.level`}
+                            render={({ field }) => (
+                              <FormItem className="w-24">
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="好感度"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={control}
+                            name={`relationshipsList.${index}.tag`}
+                            render={({ field }) => (
+                              <FormItem className="w-32">
+                                <FormControl>
+                                  <Input
+                                    placeholder="标签 (如: 友善)"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeRelation(index)}
+                          >
+                            <Trash2 className="text-destructive h-4 w-4" />
+                          </Button>
+                        </div>
+                        <FormField
+                          control={control}
+                          name={`relationshipsList.${index}.desc`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="关系描述"
+                                  {...field}
+                                  className="h-16 resize-none"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    ))}
                   </div>
                 </TabsContent>
               </ScrollArea>

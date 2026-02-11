@@ -31,6 +31,7 @@ export function useChat(characterId: number) {
           .equals(characterId)
           .filter((log) => log.timestamp > lastTime)
           .count()
+        console.log('当前已积累未总结对话数:', newLogsCount)
 
         // 30轮对话 = 60条消息
         if (newLogsCount >= 60) {
@@ -115,7 +116,7 @@ export function useChat(characterId: number) {
       const recentHistory = await db.logs
         .where({ character_id: characterId })
         .reverse()
-        .limit(20)
+        .limit(50)
         .toArray()
       const payloadMessages = recentHistory.reverse().map((log) => ({
         role: log.role,
@@ -195,12 +196,17 @@ export function useChat(characterId: number) {
               })
             } else {
               rawAIContent += message
-              const tagIndex = rawAIContent.indexOf('<state_update>')
-              if (tagIndex !== -1) {
-                cleanAIContent = rawAIContent.substring(0, tagIndex)
-                await db.logs.update(aiMessageId, { content: cleanAIContent })
-              } else {
-                cleanAIContent += message
+              let displayContent = rawAIContent
+              displayContent = displayContent.replace(
+                /<state_update>[\s\S]*?<\/state_update>/g,
+                ''
+              )
+              const openTagIndex = displayContent.indexOf('<state_update>')
+              if (openTagIndex !== -1) {
+                displayContent = displayContent.slice(0, openTagIndex)
+              }
+              if (cleanAIContent !== displayContent) {
+                cleanAIContent = displayContent
                 await db.logs.update(aiMessageId, { content: cleanAIContent })
               }
             }

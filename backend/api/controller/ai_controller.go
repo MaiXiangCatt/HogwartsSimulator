@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/MaiXiangCatt/HogwartsSimulator/backend/config"
+	"github.com/gin-gonic/gin"
 )
 
 type SummarizeRequest struct {
@@ -18,7 +18,7 @@ type SummarizeRequest struct {
 	Model    string    `json:"model"`
 }
 type AIStreamResponse struct {
-	Type string `json:"type"`
+	Type    string `json:"type"`
 	Content string `json:"content"`
 }
 
@@ -34,13 +34,11 @@ func SummarizeHandler(c *gin.Context) {
 	}
 
 	// 1. 构建 Prompt
-	agentMessages := []Message{
-		{
-			Role:    "system",
-			Content: config.SystemSummaryRules,
-		},
-	}
-	agentMessages = append(agentMessages, req.Messages...)
+	agentMessages := req.Messages
+	agentMessages = append(agentMessages, Message{
+		Role:    "system",
+		Content: config.SystemSummaryRules,
+	})
 
 	pyReq := AgentRequest{
 		Messages: agentMessages,

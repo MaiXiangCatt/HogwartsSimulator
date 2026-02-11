@@ -48,7 +48,7 @@ export const createCharacter = async (data: CraeteCharacterParams) => {
       current_week: 4,
       current_weekday: 1,
       location: '',
-      game_mode: 'weekly',
+      game_mode: 'prologue',
     },
     inventory: {},
     spells: {},
