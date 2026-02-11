@@ -87,7 +87,7 @@ func ChatHandler(c *gin.Context) {
 			{Role: "system", Content: fullSystemPrompt},
 		}
 		if isPrologue {
-			agentMessages = append(agentMessages, Message{Role: "system", Content: config.SystemPrologueRules})
+			agentMessages = append(agentMessages, Message{Role: "system", Content: config.MultiAgentSystemPrologueRules})
 		}
 		agentMessages = append(agentMessages, req.Messages...)
 
@@ -195,7 +195,7 @@ func buildMultiAgentSystemPrompt(summary []string, persona string) string {
 ---
 [STORY SUMMARY]
 %s
-`, config.SystemCoreRules, persona, summaryStr)
+`, config.MultiAgentSystemCoreRules, persona, summaryStr)
 }
 
 func buildSystemPrompt(summary []string, persona string, gameStateJSON string) string {

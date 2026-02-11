@@ -7,7 +7,7 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from app.core.state import AgentState
 from app.core.prompts import STORYTELLER_RULES, CALCULATOR_RULES
-from config import MODEL_CONFIG, PROXIES
+from config import MODEL_CONFIG, PROXIES, ENVIRONMENT
 from google.genai import types
 
 
@@ -16,8 +16,9 @@ def get_model(state: AgentState, temperature=1):
     api_key = state["api_key"]
     config = MODEL_CONFIG.get(model)
 
-    os.environ["HTTP_PROXY"] = PROXIES["http://"]
-    os.environ["HTTPS_PROXY"] = PROXIES["https://"]
+    if ENVIRONMENT == "development":
+        os.environ["HTTP_PROXY"] = PROXIES["http://"]
+        os.environ["HTTPS_PROXY"] = PROXIES["https://"]
 
     if config["provider"] == "google":
         return ChatGoogleGenerativeAI(

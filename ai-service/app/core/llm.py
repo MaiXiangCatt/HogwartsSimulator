@@ -3,15 +3,20 @@ import httpx
 from openai import AsyncOpenAI
 from google import genai
 from google.genai import types
-from config import MODEL_CONFIG, PROXIES
+from config import MODEL_CONFIG, PROXIES, ENVIRONMENT
 from app.utils.format import convert_to_gemini_format
 
 # openAI客户端(兼容deepseek)
 def get_openai_client(api_key, base_url):
+    http_client = None
+    if ENVIRONMENT == "development" and PROXIES:
+        http_client = httpx.AsyncClient(proxies=PROXIES)
+    else:
+        http_client = httpx.AsyncClient()
     return AsyncOpenAI(
         api_key=api_key,
         base_url=base_url,
-        http_client=httpx.AsyncClient(proxy="http://127.0.0.1:8889"),
+        http_client=http_client,
     )
 
 # google客户端

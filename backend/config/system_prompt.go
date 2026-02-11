@@ -4,6 +4,12 @@ import (
 	_ "embed"
 )
 
+//go:embed multi_agent_system_core_rules.md
+var MultiAgentSystemCoreRules string
+
+//go:embed multi_agent_system_prologue_rules.md
+var MultiAgentSystemPrologueRules string
+
 //go:embed system_core_rules.md
 var SystemCoreRules string
 

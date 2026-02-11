@@ -1,7 +1,14 @@
 import os
+from dotenv import load_dotenv
 
-os.environ["HTTP_PROXY"] = "http://127.0.0.1:8889"
-os.environ["HTTPS_PROXY"] = "http://127.0.0.1:8889"
+load_dotenv()
+
+ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
+HTTP_PROXY_URL = os.getenv("HTTP_PROXY_URL", "http://127.0.0.1:8889")
+
+if ENVIRONMENT == "development":
+    os.environ["HTTP_PROXY"] = HTTP_PROXY_URL
+    os.environ["HTTPS_PROXY"] = HTTP_PROXY_URL
 
 MODEL_URL_MAP = {
     "deepseek-reasoner": "https://api.deepseek.com/v1",
@@ -24,7 +31,10 @@ MODEL_CONFIG = {
     },
 }
 
-PROXIES = {
-    "http://": "http://127.0.0.1:8889",
-    "https://": "http://127.0.0.1:8889",
-}
+if ENVIRONMENT == "development":
+    PROXIES = {
+        "http://": HTTP_PROXY_URL,
+        "https://": HTTP_PROXY_URL,
+    }
+else:
+    PROXIES = {}  # 
