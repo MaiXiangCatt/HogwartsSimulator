@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { parseAndUpdateState } from '@/lib/utils'
 import type { ChatResponseData } from '@/types/chat'
 import { summarizeStory } from '@/services/ai'
+import { secureStorage } from '@/lib/storage'
 
 export function useChat(characterId: number) {
   const messages =
@@ -48,7 +49,7 @@ export function useChat(characterId: number) {
             return
           }
 
-          const apiKey = localStorage.getItem('hogwarts_api_key') || ''
+          const apiKey = secureStorage.getItem('hogwarts_api_key') || ''
           const model =
             localStorage.getItem('hogwarts_model') || 'deepseek-reasoner'
 
@@ -95,7 +96,7 @@ export function useChat(characterId: number) {
     }
     setIsLoading(true)
     try {
-      const apiKey = localStorage.getItem('hogwarts_api_key')
+      const apiKey = secureStorage.getItem('hogwarts_api_key')
       if (!apiKey) {
         toast.error('请先填写 API Key')
         setIsLoading(false)

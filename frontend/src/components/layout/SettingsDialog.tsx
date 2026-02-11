@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
+import { secureStorage } from '@/lib/storage'
 
 interface SettingsDialogProps {
   open: boolean
@@ -25,7 +26,7 @@ interface SettingsDialogProps {
 
 const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [apiKey, setApiKey] = useState(
-    () => localStorage.getItem('hogwarts_api_key') || ''
+    () => secureStorage.getItem('hogwarts_api_key') || ''
   )
   const [model, setModel] = useState(
     () => localStorage.getItem('hogwarts_model') || 'deepseek-reasoner'
@@ -35,7 +36,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   )
 
   const handleSave = () => {
-    localStorage.setItem('hogwarts_api_key', apiKey)
+    secureStorage.setItem('hogwarts_api_key', apiKey)
     localStorage.setItem('hogwarts_model', model)
     localStorage.setItem('hogwarts_use_multi_agent', String(useMultiAgent))
     toast.success('设置已保存')
