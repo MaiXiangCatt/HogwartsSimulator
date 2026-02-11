@@ -78,6 +78,10 @@ const relationItemSchema = z.object({
   desc: z.string(),
 })
 
+const summaryItemSchema = z.object({
+  content: z.string().min(1, '内容不能为空'),
+})
+
 const formSchema = z.object({
   name: z.string().min(1, '姓名不能为空'),
   house: z.string(),
@@ -89,6 +93,7 @@ const formSchema = z.object({
   inventoryList: z.array(inventoryItemSchema),
   spellsList: z.array(spellItemSchema),
   relationshipsList: z.array(relationItemSchema),
+  summaryList: z.array(summaryItemSchema),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -157,6 +162,9 @@ export default function UpdateCharacterModal({
           desc: value.desc,
         })
       ),
+      summaryList: (character.summary || []).map((item) => ({
+        content: item,
+      })),
     },
   })
 
@@ -187,6 +195,15 @@ export default function UpdateCharacterModal({
   } = useFieldArray({
     control,
     name: 'relationshipsList',
+  })
+
+  const {
+    fields: summaryFields,
+    append: appendSummary,
+    remove: removeSummary,
+  } = useFieldArray({
+    control,
+    name: 'summaryList',
   })
 
   const onSubmit = async (values: FormValues) => {
@@ -223,6 +240,7 @@ export default function UpdateCharacterModal({
         inventory,
         spells,
         relationships,
+        summary: values.summaryList.map((item) => item.content),
       }
 
       await updateCharacter(character.id, updates)
@@ -261,12 +279,13 @@ export default function UpdateCharacterModal({
               defaultValue="basic"
               className="flex flex-1 flex-col overflow-hidden"
             >
-              <TabsList className="bg-muted/80 grid w-full grid-cols-5">
+              <TabsList className="bg-muted/80 grid w-full grid-cols-6">
                 <TabsTrigger value="basic">基础</TabsTrigger>
                 <TabsTrigger value="status">状态</TabsTrigger>
                 <TabsTrigger value="inventory">物品</TabsTrigger>
                 <TabsTrigger value="spells">技能</TabsTrigger>
                 <TabsTrigger value="relationships">关系</TabsTrigger>
+                <TabsTrigger value="summary">剧情</TabsTrigger>
               </TabsList>
 
               <ScrollArea className="bg-muted/20 mt-2 flex-1 rounded-md border p-4">
@@ -663,7 +682,7 @@ export default function UpdateCharacterModal({
                       <Plus className="mr-2 h-4 w-4" /> 添加关系
                     </Button>
                   </div>
-                  <div className="space-y-4 overflow-auto max-h-100">
+                  <div className="max-h-100 space-y-4 overflow-auto">
                     {relationFields.map((field, index) => (
                       <div
                         key={field.id}
@@ -741,6 +760,57 @@ export default function UpdateCharacterModal({
                             </FormItem>
                           )}
                         />
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Summary */}
+                <TabsContent
+                  value="summary"
+                  className="space-y-4"
+                >
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => appendSummary({ content: '' })}
+                    >
+                      <Plus className="mr-2 h-4 w-4" /> 添加总结
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    {summaryFields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex flex-col gap-2 rounded-md border p-3"
+                      >
+                        <div className="flex gap-2">
+                          <FormField
+                            control={control}
+                            name={`summaryList.${index}.content`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="输入剧情总结..."
+                                    className="min-h-[100px]"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeSummary(index)}
+                          >
+                            <Trash2 className="text-destructive h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -35,10 +36,11 @@ func SummarizeHandler(c *gin.Context) {
 
 	// 1. 构建 Prompt
 	agentMessages := req.Messages
-	agentMessages = append(agentMessages, Message{
-		Role:    "system",
-		Content: config.SystemSummaryRules,
-	})
+	summaryTrigger := Message{
+		Role:    "user",
+		Content: fmt.Sprintf("系统指令：请忽略之前的角色扮演模式。根据上述所有对话历史，严格按照以下要求生成剧情总结：\n%s", config.SystemSummaryRules),
+	}
+	agentMessages = append(agentMessages, summaryTrigger)
 
 	pyReq := AgentRequest{
 		Messages: agentMessages,
@@ -89,6 +91,10 @@ func SummarizeHandler(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"summary": fullSummary.String(),
+		"code": 0,
+		"message": "success",
+		"data": gin.H{
+			"summary": fullSummary.String(),
+		},
 	})
 }
