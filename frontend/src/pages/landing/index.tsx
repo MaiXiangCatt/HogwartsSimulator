@@ -46,7 +46,7 @@ const LandingPage = () => {
           <div className="pt-8">
             <button
               onClick={handleStart}
-              className="rounded-lg bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-8 py-4 text-lg font-bold shadow-lg transition-all hover:scale-105"
             >
               开始体验
             </button>
@@ -55,7 +55,7 @@ const LandingPage = () => {
 
         {/* Scroll Indicator (Optional but nice) */}
         <div className="absolute bottom-8 animate-bounce opacity-50">
-          <div className="h-12 w-0.5 bg-primary/30"></div>
+          <div className="bg-primary/30 h-12 w-0.5"></div>
         </div>
       </section>
 
@@ -64,9 +64,9 @@ const LandingPage = () => {
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {/* Card 1 */}
-            <Card className="group border-2 border-primary/10 bg-transparent transition-all hover:border-primary/30 hover:bg-secondary">
+            <Card className="group border-primary/10 hover:border-primary/30 hover:bg-secondary border-2 bg-transparent transition-all">
               <CardHeader>
-                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <div className="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground mb-4 inline-flex w-fit items-center justify-center rounded-full p-3 transition-colors">
                   <Scroll size={24} />
                 </div>
                 <CardTitle className="font-serif text-xl font-bold">
@@ -81,26 +81,26 @@ const LandingPage = () => {
             </Card>
 
             {/* Card 2 */}
-            <Card className="group border-2 border-primary/10 bg-transparent transition-all hover:border-primary/30 hover:bg-secondary">
+            <Card className="group border-primary/10 hover:border-primary/30 hover:bg-secondary border-2 bg-transparent transition-all">
               <CardHeader>
-                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <div className="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground mb-4 inline-flex w-fit items-center justify-center rounded-full p-3 transition-colors">
                   <Dices size={24} />
                 </div>
                 <CardTitle className="font-serif text-xl font-bold">
-                  高真实性
+                  本地优先
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="leading-relaxed opacity-80">
-                  没有主角光环，只有严格的检定系统和逻辑性。没有上帝视角，所有信息都需要通过角色去获取，你可能会失败，也可能会死亡。
+                  采用本地优先的存储方式，从APIKey到你的角色和对话数据都存在于本地，不会上传至服务器。
                 </p>
               </CardContent>
             </Card>
 
             {/* Card 3 */}
-            <Card className="group border-2 border-primary/10 bg-transparent transition-all hover:border-primary/30 hover:bg-secondary">
+            <Card className="group border-primary/10 hover:border-primary/30 hover:bg-secondary border-2 bg-transparent transition-all">
               <CardHeader>
-                <div className="mb-4 inline-flex w-fit items-center justify-center rounded-full bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <div className="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground mb-4 inline-flex w-fit items-center justify-center rounded-full p-3 transition-colors">
                   <BookOpen size={24} />
                 </div>
                 <CardTitle className="font-serif text-xl font-bold">
@@ -109,7 +109,7 @@ const LandingPage = () => {
               </CardHeader>
               <CardContent>
                 <p className="leading-relaxed opacity-80">
-                  AI担任GM，使用Multi-Agent技术，减少AI违反规则及上下文错误的可能，提供更高的沉浸感。
+                  AI担任GM，使用多Agent技术（实验性，开发中），减少AI数值计算错误，提供更高的沉浸感。
                 </p>
               </CardContent>
             </Card>

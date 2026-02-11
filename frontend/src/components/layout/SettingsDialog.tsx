@@ -119,6 +119,9 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
               onCheckedChange={setUseMultiAgent}
             />
           </div>
+          <p className="text-muted-foreground text-sm">
+            开启多Agent模式有助于获得更精确的数值计算结果，但可能会花费更长时间以及额外的token，您可根据需要选择性开启。
+          </p>
         </div>
         <div className="flex justify-end">
           <Button onClick={handleSave}>保存</Button>
