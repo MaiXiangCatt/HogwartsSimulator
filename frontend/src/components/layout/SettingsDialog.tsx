@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 
 interface SettingsDialogProps {
@@ -29,10 +30,14 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [model, setModel] = useState(
     () => localStorage.getItem('hogwarts_model') || 'deepseek-reasoner'
   )
+  const [useMultiAgent, setUseMultiAgent] = useState(
+    () => localStorage.getItem('hogwarts_use_multi_agent') === 'true'
+  )
 
   const handleSave = () => {
     localStorage.setItem('hogwarts_api_key', apiKey)
     localStorage.setItem('hogwarts_model', model)
+    localStorage.setItem('hogwarts_use_multi_agent', String(useMultiAgent))
     toast.success('设置已保存')
     onOpenChange(false)
   }
@@ -74,9 +79,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                 <SelectItem value="gemini-3-pro-preview">
                   gemini-3-pro
                 </SelectItem>
-                <SelectItem value="gemini-2.5-pro">
-                  gemini-2.5-pro
-                </SelectItem>
+                <SelectItem value="gemini-2.5-pro">gemini-2.5-pro</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -99,6 +102,19 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
               您的 Key
               仅存储在本地浏览器中，绝不会上传到我们的服务器，请放心使用。
             </p>
+          </div>
+          <div className="flex items-center justify-between space-x-2">
+            <Label
+              htmlFor="multi-agent-mode"
+              className={labelClass}
+            >
+              多 Agent 模式 (实验性)
+            </Label>
+            <Switch
+              id="multi-agent-mode"
+              checked={useMultiAgent}
+              onCheckedChange={setUseMultiAgent}
+            />
           </div>
         </div>
         <div className="flex justify-end">

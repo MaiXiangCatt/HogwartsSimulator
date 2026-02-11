@@ -149,6 +149,8 @@ export function useChat(characterId: number) {
           },
           api_key: apiKey,
           model: localStorage.getItem('hogwarts_model') || 'deepseek-reasoner',
+          use_multi_agent:
+            localStorage.getItem('hogwarts_use_multi_agent') === 'true',
         }),
         signal: abortControllerRef.current.signal,
       })
@@ -213,6 +215,8 @@ export function useChat(characterId: number) {
           }
         }
       }
+
+      console.log('Final Raw Content:', rawAIContent) // Debug log
       await parseAndUpdateState(characterId, rawAIContent)
     } catch (error: any) {
       if (error.name === 'AbortError') {

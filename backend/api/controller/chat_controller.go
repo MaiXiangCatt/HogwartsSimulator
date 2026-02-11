@@ -38,18 +38,26 @@ type GameState struct {
 }
 
 type FrontedRequest struct {
-	Messages  []Message `json:"messages"`
-	Summary   []string  `json:"summary"`
-	Persona   string    `json:"persona"`
-	GameState GameState `json:"game_state"`
-	APIKey    string    `json:"api_key"`
-	Model     string    `json:"model"`
+	Messages      []Message `json:"messages"`
+	Summary       []string  `json:"summary"`
+	Persona       string    `json:"persona"`
+	GameState     GameState `json:"game_state"`
+	APIKey        string    `json:"api_key"`
+	Model         string    `json:"model"`
+	UseMultiAgent bool      `json:"use_multi_agent"`
 }
 
 type AgentRequest struct {
 	Messages []Message `json:"messages"`
 	APIKey   string    `json:"api_key"`
 	Model    string    `json:"model"`
+}
+
+type MultiAgentRequest struct {
+	Messages  []Message `json:"messages"`
+	APIKey    string    `json:"api_key"`
+	Model     string    `json:"model"`
+	GameState GameState `json:"game_state"`
 }
 
 func ChatHandler(c *gin.Context) {
@@ -67,33 +75,67 @@ func ChatHandler(c *gin.Context) {
 		isPrologue = req.GameState.Status.CurrentYear == 1991 && req.GameState.Status.CurrentMonth <= 9
 	}
 
-	// 2. 准备发给 Python 的数据
-	gameStateBytes, err := json.MarshalIndent(req.GameState, "", "  ") // Indent 是为了好看，调试方便
-	if err != nil {
-		c.JSON(500, gin.H{"error": "无法序列化状态"})
+	var targetURL string
+	var jsonData []byte
+	var jsonErr error
+
+	if req.UseMultiAgent {
+		// Multi-Agent 模式
+		// 1. 构建 System Prompt (只包含 Persona 和 Summary, 不包含 GameState)
+		fullSystemPrompt := buildMultiAgentSystemPrompt(req.Summary, req.Persona)
+		agentMessages := []Message{
+			{Role: "system", Content: fullSystemPrompt},
+		}
+		if isPrologue {
+			agentMessages = append(agentMessages, Message{Role: "system", Content: config.SystemPrologueRules})
+		}
+		agentMessages = append(agentMessages, req.Messages...)
+
+		// 2. 构建 MultiAgentRequest
+		pyReq := MultiAgentRequest{
+			Messages:  agentMessages,
+			APIKey:    req.APIKey,
+			Model:     req.Model,
+			GameState: req.GameState,
+		}
+		jsonData, jsonErr = json.Marshal(pyReq)
+		targetURL = "http://localhost:8000/multiagent/chat"
+	} else {
+		// 原始单 Agent 模式
+		// 2. 准备发给 Python 的数据
+		gameStateBytes, err := json.MarshalIndent(req.GameState, "", "  ") // Indent 是为了好看，调试方便
+		if err != nil {
+			c.JSON(500, gin.H{"error": "无法序列化状态"})
+			return
+		}
+		fullSystemPrompt := buildSystemPrompt(req.Summary, req.Persona, string(gameStateBytes))
+
+		agentMessages := []Message{
+			{Role: "system", Content: fullSystemPrompt},
+		}
+		if isPrologue {
+			fmt.Println(">>> 成功注入序章 Prompt <<<")
+			agentMessages = append(agentMessages, Message{Role: "system", Content: config.SystemPrologueRules})
+		}
+		fmt.Printf("=========== DEBUG SYSTEM PROMPT ===========\n%s\n===========================================\n", agentMessages)
+		agentMessages = append(agentMessages, req.Messages...)
+		pyReq := AgentRequest{
+			Messages: agentMessages,
+			APIKey:   req.APIKey,
+			Model:    req.Model,
+		}
+		jsonData, jsonErr = json.Marshal(pyReq)
+		targetURL = "http://localhost:8000/chat"
+	}
+
+	if jsonErr != nil {
+		c.JSON(500, gin.H{"error": "无法序列化请求"})
 		return
 	}
-	fullSystemPrompt := buildSystemPrompt(req.Summary, req.Persona, string(gameStateBytes))
-
-	agentMessages := []Message{
-		{Role: "system", Content: fullSystemPrompt},
-	}
-	if isPrologue {
-		fmt.Println(">>> 成功注入序章 Prompt <<<")
-		agentMessages = append(agentMessages, Message{Role: "system", Content: config.SystemPrologueRules})
-	}
-	fmt.Printf("=========== DEBUG SYSTEM PROMPT ===========\n%s\n===========================================\n", agentMessages)
-	agentMessages = append(agentMessages, req.Messages...)
-	pyReq := AgentRequest{
-		Messages: agentMessages,
-		APIKey:   req.APIKey,
-		Model:    req.Model,
-	}
-	jsonData, _ := json.Marshal(pyReq)
 
 	// 3. 创建发往 Python 服务的 HTTP 请求
 	// 注意：这里要确保你的 Python 服务已经启动在 8000 端口
-	proxyReq, err := http.NewRequestWithContext(c.Request.Context(), "POST", "http://localhost:8000/chat", bytes.NewBuffer(jsonData))
+	proxyReq, err := http.NewRequestWithContext(c.Request.Context(), "POST", targetURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		c.JSON(500, gin.H{"error": "无法创建请求"})
 		return
@@ -139,6 +181,21 @@ func ChatHandler(c *gin.Context) {
 			}
 		}
 	}
+}
+
+func buildMultiAgentSystemPrompt(summary []string, persona string) string {
+	summaryStr := strings.Join(summary, "\n")
+	return fmt.Sprintf(`%s
+
+---
+[PLAYER PERSONA]
+(The following describes the protagonist's inner world and behavior logic. YOU MUST ADHERE TO THIS CHARACTERIZATION.)
+%s
+
+---
+[STORY SUMMARY]
+%s
+`, config.SystemCoreRules, persona, summaryStr)
 }
 
 func buildSystemPrompt(summary []string, persona string, gameStateJSON string) string {
