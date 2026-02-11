@@ -100,8 +100,10 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
               className={inputClass}
             />
             <p className="text-muted-foreground text-sm">
-              您的 Key
-              仅存储在本地浏览器中，绝不会上传到我们的服务器，请放心使用。
+              安全提示：您的API
+              Key仅存储在本地浏览器中，不会上传到服务器，请放心使用。为保护您的API
+              Key，请勿在公共电脑（网吧、图书馆）上使用。此外清除浏览器缓存会丢失
+              Key，请自行备份。
             </p>
           </div>
           <div className="flex items-center justify-between space-x-2">

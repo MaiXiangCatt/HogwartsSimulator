@@ -10,11 +10,17 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Scroll,
   Backpack,
   Calendar,
+  CircleQuestionMark,
   Users,
   Coins,
   Heart,
@@ -194,7 +200,19 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
 
           {/* 人设 */}
           <div className="my-2 flex items-center justify-between gap-4">
-            <span className="text-muted-foreground text-sm">角色人设</span>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground text-sm">角色人设</span>
+              <Tooltip>
+                <TooltipTrigger>
+                  <CircleQuestionMark size={20} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    强烈建议设定好角色人设，以帮助AI生成更符合角色设定的剧情，否则可能出现不可预知的抽象描写。
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Dialog
               open={isPersonaDialogOpen}
               onOpenChange={setIsPersonaDialogOpen}
@@ -218,7 +236,7 @@ const ChatSidebar = ({ characterInfo }: ChatSidebarProps) => {
                   <Textarea
                     value={personaInput}
                     onChange={(e) => setPersonaInput(e.target.value)}
-                    placeholder="输入角色的性格、动机、缺点甚至家庭背景等详细设定...人设不是必须的, 设定后有助于AI输出更符合您预期的剧情, 提高沉浸感。"
+                    placeholder="输入角色的性格、行事风格、缺点、家庭背景等详细设定...人设不是必须的, 设定后有助于AI输出更符合您预期的剧情, 提高沉浸感。"
                     className="max-h-80 min-h-50 overflow-auto"
                   />
                 </div>

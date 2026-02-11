@@ -53,11 +53,12 @@ const Navbar = () => {
           </>
         ) : (
           <button
+            disabled
             onClick={() => openAuthModal('login')}
             className="flex items-center gap-1 text-sm font-semibold decoration-2 underline-offset-4 hover:underline"
           >
             <Cloud size={16} />
-            <span>云端同步</span>
+            <span>云端同步（开发中）</span>
           </button>
         )}
       </div>

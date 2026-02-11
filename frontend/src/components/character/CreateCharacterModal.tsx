@@ -21,6 +21,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -94,6 +95,10 @@ const CreateCharacterModal = ({
           <DialogTitle className="font-serif text-2xl font-bold">
             创建角色
           </DialogTitle>
+          <DialogDescription>
+            您的角色信息和聊天信息都存储于当前浏览器的本地数据库中。请勿在无痕模式下使用，且不要清除本网站的
+            Cookie 和站点数据，否则存档将永久丢失。（导出及导入功能正在开发中）
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
