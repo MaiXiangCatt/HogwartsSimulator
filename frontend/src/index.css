@@ -1,0 +1,245 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-navbar: var(--navbar);
+  --color-navbar-foreground: var(--navbar-foreground);
+  --color-chat-input: var(--chat-input);
+  --color-chat-send-hover: var(--chat-send-hover);
+}
+
+:root {
+  --radius: 0.625rem;
+  --navbar-height: 4rem;
+
+  --chat-input: hsl(40 57% 96%);
+  --chat-send-hover: hsl(32 59% 15%);
+  --background: hsl(34 57% 89%);
+  --foreground: hsl(32 62% 10%);
+  --card: hsl(33 48% 96%);
+  --card-foreground: hsl(32 62% 10%);
+  --popover: hsl(33 48% 96%);
+  --popover-foreground: hsl(32 62% 10%);
+  --primary: hsl(32 62% 10%);
+  --primary-foreground: hsl(34 57% 89%);
+  --secondary: hsl(36 45% 82%);
+  --secondary-foreground: hsl(32 62% 10%);
+  --muted: hsl(35 29% 76%);
+  --muted-foreground: hsl(32 30% 40%);
+  --accent: hsl(36 45% 82%);
+  --accent-foreground: hsl(32 62% 10%);
+  --destructive: hsl(0 50% 40%);
+  --destructive-foreground: hsl(34 57% 89%);
+  --border: hsl(35 29% 76%);
+  --input: hsl(35 29% 76%);
+  --ring: hsl(26 40% 39%);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: hsl(33 48% 96%);
+  --sidebar-foreground: hsl(32 62% 10%);
+  --sidebar-primary: hsl(32 62% 10%);
+  --sidebar-primary-foreground: hsl(34 57% 89%);
+  --sidebar-accent: hsl(36 45% 82%);
+  --sidebar-accent-foreground: hsl(32 62% 10%);
+  --sidebar-border: hsl(35 29% 76%);
+  --sidebar-ring: hsl(26 40% 39%);
+
+  --navbar: hsl(32 62% 10%);
+  --navbar-foreground: hsl(34 57% 89%);
+}
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .markdown-body {
+    /* --- 基础排版 --- */
+    p {
+      margin-bottom: 0.75rem;
+      line-height: 1.75; /* 让阅读更舒服 */
+    }
+
+    /* --- 列表 --- */
+    ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+    }
+    ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+    }
+
+    /* --- 标题 --- */
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-weight: 600;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      line-height: 1.3;
+    }
+    h1 {
+      font-size: 1.8rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+    }
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    /* --- 代码块核心 (你缺少的) --- */
+
+    /* 1. 内联代码 (Inline Code) 比如 `const a = 1` */
+    /* :not(pre) > code 意思是：不在 pre 标签里的 code */
+    :not(pre) > code {
+      background-color: #f1f5f9; /* 浅灰背景 (slate-100) */
+      color: #ef4444; /* 红色高亮 (red-500) 模仿 Github 风格 */
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.25rem;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.875em;
+    }
+
+    /* 深色模式下的内联代码适配 (可选) */
+    @media (prefers-color-scheme: dark) {
+      :not(pre) > code {
+        background-color: #1e293b; /* slate-800 */
+        color: #fca5a5; /* red-300 */
+      }
+    }
+
+    /* 2. 多行代码块 (Block Code) 比如 ```js ... ``` */
+    pre {
+      background-color: #1e293b; /* 深色背景 (slate-800) */
+      color: #f8fafc; /* 浅色文字 */
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto; /* 超出宽度允许横向滚动 */
+      margin: 1rem 0;
+
+      /* 这里的 code 继承 pre 的样式即可 */
+      code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+        border-radius: 0;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+    }
+
+    /* --- 引用块 --- */
+    blockquote {
+      border-left: 4px solid #cbd5e1;
+      padding-left: 1rem;
+      color: #64748b;
+      font-style: italic;
+      margin: 1rem 0;
+    }
+
+    /* --- 分割线 --- */
+    hr {
+      border: 0;
+      border-top: 1px solid #e2e8f0;
+      margin: 2rem 0;
+    }
+
+    /* --- 链接 --- */
+    a {
+      color: #3b82f6;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    a:hover {
+      color: #2563eb;
+    }
+  }
+}
+
+.dark {
+  --background: hsl(32 62% 10%);
+  --foreground: hsl(34 57% 89%);
+  --card: hsl(32 58% 15%);
+  --card-foreground: hsl(34 57% 89%);
+  --popover: hsl(32 58% 15%);
+  --popover-foreground: hsl(34 57% 89%);
+  --primary: hsl(34 57% 89%);
+  --primary-foreground: hsl(32 62% 10%);
+  --secondary: hsl(32 40% 20%);
+  --secondary-foreground: hsl(34 57% 89%);
+  --muted: hsl(32 40% 20%);
+  --muted-foreground: hsl(35 29% 60%);
+  --accent: hsl(32 40% 20%);
+  --accent-foreground: hsl(34 57% 89%);
+  --destructive: hsl(0 62% 30%);
+  --destructive-foreground: hsl(34 57% 89%);
+  --border: hsl(32 40% 20%);
+  --input: hsl(32 40% 20%);
+  --ring: hsl(26 40% 39%);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: hsl(32 58% 15%);
+  --sidebar-foreground: hsl(34 57% 89%);
+  --sidebar-primary: hsl(34 57% 89%);
+  --sidebar-primary-foreground: hsl(32 62% 10%);
+  --sidebar-accent: hsl(32 40% 20%);
+  --sidebar-accent-foreground: hsl(34 57% 89%);
+  --sidebar-border: hsl(32 40% 20%);
+  --sidebar-ring: hsl(26 40% 39%);
+}
