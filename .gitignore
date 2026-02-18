@@ -35,6 +35,7 @@ venv/
 /backend/bin/
 *.exe
 *.test
+server_linux
 # Go 的依赖通常不在当前目录的 node_modules 里，但如果有编译产物可以加在这里
 
 # --- Environment Secrets ---
